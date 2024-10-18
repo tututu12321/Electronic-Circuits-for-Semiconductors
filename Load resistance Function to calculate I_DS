@@ -1,0 +1,43 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の設定 (Setting constants)
+mu_n = 600e-4  # 電子移動度 (Electron mobility) in cm^2/Vs
+C_ox = 3.45e-3  # 酸化膜容量 (Oxide capacitance) in F/cm^2
+W = 10e-6  # チャンネル幅 (Channel width) in cm
+L = 2e-6  # チャンネル長 (Channel length) in cm
+V_th = 1.0  # しきい値電圧 (Threshold voltage) in V
+V_A = 50.0  # アーリー電圧 (Early voltage) in V
+R = 1e3  # 負荷抵抗 (Load resistance) in ohms
+V_DD = 5.0  # 電源電圧 (Supply voltage) in V
+
+# 入力電圧範囲 (Input voltage range)
+V_in = np.linspace(0, 5, 500)  # 0Vから5Vまでの500点
+
+# ドレイン電流 I_DS を計算する関数 (Function to calculate I_DS)
+def calculate_ids(Vin, Vout):
+    return (mu_n * C_ox / 2) * (W / L) * (Vin - V_th)**2 * (1 + Vout / V_A)
+
+# 出力電圧 V_out を計算する (Calculate V_out for each V_in)
+V_out = np.zeros_like(V_in)  # 出力電圧の配列を初期化
+
+for i, Vin in enumerate(V_in):
+    # 初期値をV_DDとして反復法でI_DSとV_outを求める (Iterative method to solve for V_out)
+    Vout_guess = V_DD  # 初期推定値
+    for _ in range(100):  # 反復回数
+        I_DS = calculate_ids(Vin, Vout_guess)
+        Vout_new = V_DD - R * I_DS
+        if np.abs(Vout_new - Vout_guess) < 1e-6:  # 収束条件
+            break
+        Vout_guess = Vout_new
+    V_out[i] = Vout_guess
+
+# プロット (Plot)
+plt.figure(figsize=(8, 6))
+plt.plot(V_in, V_out, label="$V_{out}$ vs $V_{in}$", color='blue')
+plt.title("Source Follower: $V_{in}$ vs $V_{out}$")
+plt.xlabel("Input Voltage $V_{in}$ (V)")
+plt.ylabel("Output Voltage $V_{out}$ (V)")
+plt.grid(True)
+plt.legend()
+plt.show()

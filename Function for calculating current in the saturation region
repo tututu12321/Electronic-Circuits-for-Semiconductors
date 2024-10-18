@@ -1,0 +1,56 @@
+import numpy as np
+
+# 定数の設定 (Define constants)
+mu_Cox = 1e-4  # 移動度 * 酸化膜容量 (例値) / Mobility * Oxide capacitance (example value)
+W = 1e-6  # チャンネル幅 (例値) / Channel width (example value)
+L = 1e-6  # チャンネル長 (例値) / Channel length (example value)
+VT = 0.7  # しきい値電圧 (例値) / Threshold voltage (example value)
+lambda_ = 0.02  # チャネル長変調 (例値) / Channel length modulation (example value)
+
+# 定数Kを計算する関数 (Function for calculating the constant K)
+def calc_K(mu_Cox, W, L):
+    return (mu_Cox * W) / (2 * L)
+
+# 飽和領域の理想電流を計算する関数 (Function for calculating current in the saturation region, ideal)
+def Id_sat_ideal(VGS, VT, K):
+    return K * (VGS - VT) ** 2
+
+# 飽和領域の実際の電流を計算する関数 (Function for calculating current in the saturation region, real)
+def Id_sat_real(VGS, VT, K, VDS, lambda_):
+    return K * (VGS - VT) ** 2 * (1 + lambda_ * VDS)
+
+# トライオード領域の電流を計算する関数 (Function for calculating current in the triode region)
+def Id_triode(VGS, VT, K, VDS):
+    return K * (2 * (VGS - VT) * VDS - VDS ** 2)
+
+# トランスコンダクタンスを計算する関数 (Function for calculating transconductance)
+def gm(K, VGS, VT):
+    return 2 * K * (VGS - VT)
+
+# 出力コンダクタンスを計算する関数 (Function for calculating output conductance)
+def gds(lambda_, Id):
+    return lambda_ * Id
+
+# VGSとVDSの例値 (Example values for VGS and VDS)
+VGS = 1.0  # ゲート-ソース間電圧 (例値) / Gate-source voltage (example value)
+VDS = 0.5  # ドレイン-ソース間電圧 (例値) / Drain-source voltage (example value)
+
+# 定数Kを計算 (Calculate constant K)
+K = calc_K(mu_Cox, W, L)
+
+# 各領域での電流を計算 (Calculate currents in different regions)
+Id_sat_ideal_value = Id_sat_ideal(VGS, VT, K)  # 飽和領域の理想電流 / Ideal current in saturation region
+Id_sat_real_value = Id_sat_real(VGS, VT, K, VDS, lambda_)  # 飽和領域の実際の電流 / Real current in saturation region
+Id_triode_value = Id_triode(VGS, VT, K, VDS)  # トライオード領域の電流 / Current in triode region
+
+# トランスコンダクタンスと出力コンダクタンスを計算 (Calculate transconductance and output conductance)
+gm_value = gm(K, VGS, VT)  # トランスコンダクタンス / Transconductance
+gds_value = gds(lambda_, Id_sat_real_value)  # 出力コンダクタンス / Output conductance
+
+# 結果を表示 (Display results)
+print(f"Constant K: {K:.4e}")
+print(f"Saturation Region (Ideal) Id: {Id_sat_ideal_value:.4e} A")
+print(f"Saturation Region (Real) Id: {Id_sat_real_value:.4e} A")
+print(f"Triode Region Id: {Id_triode_value:.4e} A")
+print(f"Transconductance gm: {gm_value:.4e} S")
+print(f"Output Conductance gds: {gds_value:.4e} S")

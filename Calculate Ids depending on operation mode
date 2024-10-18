@@ -1,0 +1,38 @@
+import numpy as np
+
+# 定数の設定 (Setting constants)
+mu_n = 600e-4  # Electron mobility (cm^2/Vs) / 電子移動度
+C_ox = 3.45e-3  # Oxide capacitance (F/cm^2) / 酸化膜容量
+W = 10e-6  # Channel width (cm) / チャンネル幅
+L = 2e-6  # Channel length (cm) / チャンネル長
+V_th = 1.0  # Threshold voltage (V) / しきい値電圧
+V_ds = 2.0  # Drain-source voltage (V) / ドレイン・ソース間電圧
+V_gs = 2.5  # Gate-source voltage (V) / ゲート・ソース間電圧
+lambda_mod = 0.02  # Channel length modulation factor (1/V) / チャネル長変調係数
+
+# 熱電圧 (Thermal voltage) V_T = k_B T / q
+k_B = 1.38e-23  # Boltzmann constant (J/K)
+T = 300  # Temperature (K) / 温度
+q = 1.6e-19  # Charge of an electron (C) / 電子の電荷
+V_T = k_B * T / q  # Thermal voltage / 熱電圧
+
+# DIBL and sub-threshold swing parameters / DIBL係数とサブスレッショルドスイング係数
+eta = 0.5  # DIBL coefficient / DIBL係数
+N = 1.5  # Sub-threshold swing factor / サブスレッショルドスイング係数
+
+# モードに応じたIdsの計算と表示 (Calculate and display Ids depending on operation mode)
+
+# 飽和領域 (Saturation Region)
+if V_gs > V_th and V_ds > (V_gs - V_th):
+    I_ds_saturation = (mu_n * C_ox / 2) * (W / L) * (V_gs - V_th)**2 * (1 + lambda_mod * V_ds)
+    print(f"Saturation Region I_ds = {I_ds_saturation:.6e} A")  # 科学表記で表示
+
+# 非飽和領域 (Linear Region)
+if V_gs > V_th and V_ds <= (V_gs - V_th):
+    I_ds_linear = mu_n * C_ox * (W / L) * ((V_gs - V_th) - 0.5 * V_ds) * V_ds
+    print(f"Linear Region I_ds = {I_ds_linear:.6e} A")  # 科学表記で表示
+
+# 弱反転領域 (Weak Inversion Region)
+if V_gs < V_th:
+    I_ds_weak = mu_n * C_ox * (W / L) * np.exp((V_gs - V_th + eta * V_ds) / (N * V_T)) * (1 - np.exp(-V_ds / V_T))
+    print(f"Weak Inversion Region I_ds = {I_ds_weak:.6e} A")  # 科学表記で表示

@@ -1,0 +1,36 @@
+import numpy as np
+
+# 定数の設定 (Setting constants)
+g_m = 0.01  # トランスコンダクタンス (Transconductance) in S
+g_mb = 0.002  # ボディ効果のトランスコンダクタンス (Body transconductance) in S
+r_o = 30e3  # 出力抵抗 (Output resistance) in ohms
+R = 1e2  # 負荷抵抗 (Load resistance) in ohms
+
+# 並列インピーダンスの計算関数 (Function to calculate parallel impedance)
+def parallel_impedance(R1, R2):
+    return (R1 * R2) / (R1 + R2)
+
+# ソース接地回路 (Source Degeneration Circuit)
+# 特性: 高い電圧利得 (High voltage gain)
+# 用途: ゲイン・ステージ (Gain stage)
+Z_parallel_sr = parallel_impedance(r_o, R)
+A_v_sr = -g_m * Z_parallel_sr  # 電圧利得 (Voltage Gain)
+Z_out_sr = Z_parallel_sr  # 出力インピーダンス (Output Impedance)
+
+# ドレイン接地回路 (Common Drain Circuit)
+# 特性: 低い出力インピーダンス、低い電圧利得 (Low output impedance, low voltage gain, approx. 0.7)
+# 用途: レベル・シフタ (Level shifter)
+A_v_drain = 1 / (1 + (1 / (g_m * Z_parallel_sr)) + (g_mb / g_m))
+Z_out_drain = 1 / (g_m + g_mb)
+
+# ゲート接地回路 (Common Gate Circuit)
+# 特性: 高い電圧利得、低い入力インピーダンス (High voltage gain, low input impedance)
+# 用途: ゲイン・ステージ、電流バッファ (Gain stage, current buffer)
+A_v_gate = (g_m + g_mb + 1 / r_o) * Z_parallel_sr  # 電圧利得 (Voltage Gain)
+Z_in_gate = (R + r_o) / (1 + g_m * r_o + g_mb * r_o)  # 入力インピーダンス (Input Impedance)
+Z_out_gate = Z_parallel_sr  # 出力インピーダンス (Output Impedance)
+
+# 結果を表示 (Display results)
+print(f"ソース接地回路 (Source Degeneration Circuit):\n 電圧利得 (Voltage Gain) = {A_v_sr:.4f}, 出力インピーダンス (Output Impedance) = {Z_out_sr:.2f} ohms")
+print(f"ドレイン接地回路 (Common Drain Circuit):\n 電圧利得 (Voltage Gain) = {A_v_drain:.4f}, 出力インピーダンス (Output Impedance) = {Z_out_drain:.2f} ohms")
+print(f"ゲート接地回路 (Common Gate Circuit):\n 電圧利得 (Voltage Gain) = {A_v_gate:.4f}, 入力インピーダンス (Input Impedance) = {Z_in_gate:.2f} ohms, 出力インピーダンス (Output Impedance) = {Z_out_gate:.2f} ohms")

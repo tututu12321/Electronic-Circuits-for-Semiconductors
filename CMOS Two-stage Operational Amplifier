@@ -1,0 +1,31 @@
+# 必要なライブラリをインポート / Import necessary libraries
+import numpy as np
+
+# パラメータの設定 / Set parameters
+VDD = 3  # 電源電圧 V_DD (V) / Power supply voltage V_DD (V)
+I_M1 = 25e-6  # M1の電流 (A) / Current through M1 (A)
+I_M6 = 242e-6  # M6の電流 (A) / Current through M6 (A)
+gm1 = 94.25e-6  # M1のトランスコンダクタンス g_m1 (S) / Transconductance of M1 g_m1 (S)
+gm6 = 942.5e-6  # M6のトランスコンダクタンス g_m6 (S) / Transconductance of M6 g_m6 (S)
+VA1 = 20  # M1のアーリー電圧 V_A1 (V) / Early voltage of M1 V_A1 (V)
+VA4 = 30  # M4のアーリー電圧 V_A4 (V) / Early voltage of M4 V_A4 (V)
+VA6 = 20  # M6のアーリー電圧 V_A6 (V) / Early voltage of M6 V_A6 (V)
+VA7 = 30  # M7のアーリー電圧 V_A7 (V) / Early voltage of M7 V_A7 (V)
+
+# 1. 消費電力 P_dis を計算 / Calculate Power Dissipation P_dis
+P_dis = VDD * (I_M1 + I_M6)
+print(f"Power Dissipation P_dis: {P_dis:.3e} W")
+
+# 2. 第1段の電圧利得 A_v1 の計算 / Calculate Voltage Gain A_v1 (First Stage)
+Av1 = (-gm1) / ((1 / VA1) + (1 / VA4))
+print(f"Voltage Gain A_v1: {Av1:.3e}")
+
+# 3. 第2段の電圧利得 A_v2 の計算 / Calculate Voltage Gain A_v2 (Second Stage)
+Av2 = (-gm6) / ((1 / VA6) + (1 / VA7))
+print(f"Voltage Gain A_v2: {Av2:.3e}")
+
+# 4. 全体の電圧利得 A_v の計算 / Calculate Total Voltage Gain A_v
+Av_total = Av1 * Av2
+Av_total_dB = 20 * np.log10(abs(Av_total))  # dB で表現 / Express in dB
+print(f"Total Voltage Gain A_v: {Av_total:.3e}")
+print(f"Total Voltage Gain in dB: {Av_total_dB:.2f} dB")

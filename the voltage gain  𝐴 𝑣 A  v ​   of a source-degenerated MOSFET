@@ -1,0 +1,21 @@
+import numpy as np
+
+# パラメータの設定 / Set the parameters
+RD = 1000  # ドレイン抵抗 R_D (in ohms)
+mu = 200e-4  # キャリア移動度 μ (in m^2/Vs)
+Cox = 2.5e-3  # ゲート酸化容量 C_ox (in F/m^2)
+W = 10e-6  # トランジスタの幅 W (in meters)
+L = 1e-6  # トランジスタの長さ L (in meters)
+IDS = 1e-3  # ドレイン電流 I_DS (in amperes)
+VDS = 2  # ドレインソース間電圧 V_DS (in volts)
+VA = 20  # アーリー電圧 V_A (in volts)
+
+# 式の分子と分母を計算 / Calculate the numerator and denominator of the formula
+numerator = RD * np.sqrt(2 * mu * Cox * (W / L) * IDS * (1 + (VDS / VA)))
+denominator = 1 + (RD * IDS / VA)
+
+# 電圧利得 A_v を計算 / Calculate the voltage gain A_v
+Av = -numerator / denominator
+
+# 結果を表示 / Display the result
+print(f"Voltage gain A_v: {Av:.2f}")

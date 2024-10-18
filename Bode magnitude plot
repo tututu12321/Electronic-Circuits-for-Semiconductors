@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# 伝達関数の分子と分母の係数 (Coefficients of the numerator and denominator of the transfer function)
+num = [1, 2]  # 分子 (Numerator: s + 2)
+den = [1, 13, 30]  # 分母 (Denominator: s^2 + 13s + 30)
+
+# システムを定義 (Define the system)
+system = signal.TransferFunction(num, den)
+
+# 極と零点を求める (Find poles and zeros)
+zeros, poles, _ = signal.tf2zpk(num, den)
+
+# 複素平面にプロット (Plot poles and zeros on the complex plane)
+plt.figure(figsize=(8, 6))
+
+# プロットのための枠 (Setup the plot)
+plt.axhline(0, color='black',linewidth=0.5)
+plt.axvline(0, color='black',linewidth=0.5)
+
+# 零点 (Zeros) をプロット (Plot zeros)
+plt.scatter(np.real(zeros), np.imag(zeros), s=100, marker='o', color='blue', label='Zeros')
+
+# 極 (Poles) をプロット (Plot poles)
+plt.scatter(np.real(poles), np.imag(poles), s=100, marker='x', color='red', label='Poles')
+
+# グラフの設定 (Graph settings)
+plt.title('Pole-Zero Plot')
+plt.xlabel('Real')
+plt.ylabel('Imaginary')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# ボード線図のプロット (Plot Bode diagram)
+w, mag, phase = signal.bode(system)
+
+plt.figure(figsize=(12, 8))
+
+# ボード線図 - ゲイン (Bode magnitude plot)
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag)  # x軸を対数スケールでプロット
+plt.title('Bode Plot')
+plt.ylabel('Magnitude (dB)')
+plt.grid(True)
+
+# ボード線図 - 位相 (Bode phase plot)
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase)  # x軸を対数スケールでプロット
+plt.xlabel('Frequency (rad/s)')
+plt.ylabel('Phase (degrees)')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()

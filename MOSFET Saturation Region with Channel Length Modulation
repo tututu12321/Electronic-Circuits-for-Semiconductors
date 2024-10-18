@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# 定数の設定 / Set constants
+mu_n = 600e-4  # Electron mobility (cm^2/Vs) / 電子移動度
+C_ox = 3.45e-3  # Gate oxide capacitance (F/cm^2) / ゲート酸化物容量
+W = 10e-4  # Channel width (cm) / チャンネル幅
+L = 2e-4   # Channel length (cm) / チャンネル長
+V_th = 1.0  # Threshold voltage (V) / しきい値電圧
+lambda_mod = 0.02  # Channel length modulation factor / チャネル長変調係数
+
+# ドレイン・ソース間電圧とゲート・ソース間電圧の範囲 / Voltage ranges for V_DS and V_GS
+V_DS = np.linspace(0, 5, 100)  # Drain-Source voltage / ドレイン-ソース間電圧
+V_GS = np.linspace(0, 5, 100)  # Gate-Source voltage / ゲート-ソース間電圧
+
+# Create meshgrid for 3D plot / 3次元プロットのためのメッシュグリッド作成
+V_DS_grid, V_GS_grid = np.meshgrid(V_DS, V_GS)
+
+# ドレイン電流の計算 / Calculate drain current I_D
+k = mu_n * C_ox * (W / L)
+I_D = np.where(V_GS_grid > V_th,
+               0.5 * k * (V_GS_grid - V_th)**2 * (1 + lambda_mod * V_DS_grid),
+               0)  # V_GS < V_th の場合は電流は0 / No current if V_GS < V_th
+
+# 3Dプロットの作成 / Create 3D plot
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+
+# Plot the surface / サーフェスプロット
+ax.plot_surface(V_DS_grid, V_GS_grid, I_D, cmap='viridis')
+
+# ラベルの設定 / Set labels
+ax.set_title('MOSFET Saturation Region with Channel Length Modulation')
+ax.set_xlabel('V_DS (V)')
+ax.set_ylabel('V_GS (V)')
+ax.set_zlabel('I_D (A)')
+
+plt.show()

@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters
+V_th = 0.7  # Threshold voltage (Vth)
+VGS_range = np.linspace(0, 2, 100)  # VGS from 0 to 2V
+
+# Calculate the overdrive voltage line: VDS = VGS - Vth
+VDS_overdrive_line = VGS_range - V_th
+
+# Create the figure and axis
+fig, ax = plt.subplots()
+
+# Plot the vertical line extended from (Vth, 0) to (Vth, 2)
+ax.plot([V_th, V_th], [0, 2], label='VGS = Vth (Extended Line)', color='blue', linestyle='--')
+
+# Mark the intercept at (Vth, 0)
+ax.plot(V_th, 0, 'ro', label='(Vth, 0)')
+
+# Plot the overdrive voltage line: VDS = VGS - Vth
+ax.plot(VGS_range, VDS_overdrive_line, label='VDS = VGS - Vth', color='green')
+
+# Fill the saturation region between the two lines
+plt.fill_between(VGS_range, VDS_overdrive_line, 2, 
+                 where=(VGS_range >= V_th), color='gray', alpha=0.3, label='Saturation Region')
+
+# Labels and Title
+ax.set_xlabel('VGS (Gate-Source Voltage) [V]', fontsize=12)  # 横軸ラベル (VGS)
+ax.set_ylabel('VDS (Drain-Source Voltage) [V]', fontsize=12)  # 縦軸ラベル (VDS)
+ax.set_title('Saturation Region Plot', fontsize=14)  # タイトル (飽和領域プロット)
+
+# Grid, legend, and plot limits
+ax.grid(True)
+ax.legend()
+ax.set_xlim(0, 2)  # 横軸の範囲 (VGS)
+ax.set_ylim(0, 2)  # 縦軸の範囲 (VDS)
+
+# Show plot
+plt.show()

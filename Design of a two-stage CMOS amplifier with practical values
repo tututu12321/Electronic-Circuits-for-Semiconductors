@@ -1,0 +1,121 @@
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Bodeプロット用の周波数範囲定義 / Define the frequencies for Bode plot
+frequencies = np.logspace(3, 9, 1000)  # 1kHz to 1GHz
+
+# 初期パラメータ設定 / Initial parameters
+A0 = 400  # DC Gain (直流利得)
+
+# 補償前のポール周波数 / Pole frequencies (before compensation)
+fp1_before = 16e6  # 16 MHz
+fp2_before = 53e6  # 53 MHz
+
+# 補償後のポール周波数 / Pole frequencies (after compensation)
+fM1_after = 160e3  # 160 kHz
+fM2_after = 530e6  # 530 MHz
+
+# 補償前の伝達関数 / Transfer function before compensation
+def transfer_function_before(f):
+    return A0 / ((1 + 1j * f / fp1_before) * (1 + 1j * f / fp2_before))
+
+# 補償後の伝達関数 / Transfer function after compensation
+def transfer_function_after(f):
+    return A0 / ((1 + 1j * f / fM1_after) * (1 + 1j * f / fM2_after))
+
+# 補償前後の振幅と位相の計算 / Calculate magnitude and phase
+magnitude_before = 20 * np.log10(np.abs(transfer_function_before(frequencies)))
+phase_before = np.angle(transfer_function_before(frequencies), deg=True)
+
+magnitude_after = 20 * np.log10(np.abs(transfer_function_after(frequencies)))
+phase_after = np.angle(transfer_function_after(frequencies), deg=True)
+
+# プロット作成 / Plotting
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10))
+
+# 振幅応答プロット / Magnitude plot
+ax1.semilogx(frequencies, magnitude_before, label='Before Compensation', linestyle='--')
+ax1.semilogx(frequencies, magnitude_after, label='After Compensation', color='red')
+ax1.set_title('Bode Plot: Magnitude Response')
+ax1.set_ylabel('Magnitude (dB)')
+ax1.legend()
+ax1.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+# 位相応答プロット / Phase plot
+ax2.semilogx(frequencies, phase_before, label='Before Compensation', linestyle='--')
+ax2.semilogx(frequencies, phase_after, label='After Compensation', color='red')
+ax2.set_title('Bode Plot: Phase Response')
+ax2.set_xlabel('Frequency (Hz)')
+ax2.set_ylabel('Phase (degrees)')
+ax2.legend()
+ax2.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+plt.tight_layout() 
+plt.show()
+
+# 以下は更新されたパラメータを使用したプロットです / Below is the plot with updated parameters
+# 更新された回路パラメータ / Updated circuit parameters
+Cp1 = 0.5e-12  # 0.5 pF
+Cp2 = 3e-12    # 3 pF
+CM = 50e-12    # 50 pF
+
+# 抵抗値 / Resistor values from image
+rp1 = 20e3  # 20 kOhm
+rp2 = 1e3   # 1 kOhm
+
+# トランスコンダクタンス値 / Transconductance values
+gm1 = 2e-3  # 2 mS
+gm6 = 10e-3  # 10 mS
+
+# 補償前のポール周波数計算 / Calculate pole frequencies before compensation
+fp1_before = 1 / (2 * np.pi * Cp1 * rp1)  # First pole frequency
+fp2_before = 1 / (2 * np.pi * Cp2 * rp2)  # Second pole frequency
+
+# 補償後のポール周波数計算 / Calculate pole frequencies after compensation
+fM1_after = 1 / (2 * np.pi * CM * rp1)  # First pole frequency after compensation
+fM2_after = gm6 / (2 * np.pi * Cp2)     # Second pole frequency after compensation
+
+# 更新された伝達関数の定義 / Define updated transfer functions
+def transfer_function_before_updated(f):
+    return A0 / ((1 + 1j * f / fp1_before) * (1 + 1j * f / fp2_before))
+
+def transfer_function_after_updated(f):
+    return A0 / ((1 + 1j * f / fM1_after) * (1 + 1j * f / fM2_after))
+
+# 更新された振幅と位相の計算 / Calculate magnitude and phase with updated transfer functions
+magnitude_before_updated = 20 * np.log10(np.abs(transfer_function_before_updated(frequencies)))
+phase_before_updated = np.angle(transfer_function_before_updated(frequencies), deg=True)
+
+magnitude_after_updated = 20 * np.log10(np.abs(transfer_function_after_updated(frequencies)))
+phase_after_updated = np.angle(transfer_function_after_updated(frequencies), deg=True)
+
+# プロット作成 / Plotting
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10))
+
+# 更新された振幅応答プロット / Magnitude plot (updated)
+ax1.semilogx(frequencies, magnitude_before_updated, label='Before Compensation (Updated)', linestyle='--')
+ax1.semilogx(frequencies, magnitude_after_updated, label='After Compensation (Updated)', color='red')
+ax1.set_title('Bode Plot: Magnitude Response (Updated)')
+ax1.set_ylabel('Magnitude (dB)')
+ax1.legend()
+ax1.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+# 更新された位相応答プロット / Phase plot (updated)
+ax2.semilogx(frequencies, phase_before_updated, label='Before Compensation (Updated)', linestyle='--')
+ax2.semilogx(frequencies, phase_after_updated, label='After Compensation (Updated)', color='red')
+ax2.set_title('Bode Plot: Phase Response (Updated)')
+ax2.set_xlabel('Frequency (Hz)')
+ax2.set_ylabel('Phase (degrees)')
+ax2.legend()
+ax2.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+plt.tight_layout()
+plt.show()
+
+
+
+
+
+https://drive.google.com/drive/folders/17KsF44jPtuvGQyNo0Qgq2GIbmcfTEAi6?usp=sharing

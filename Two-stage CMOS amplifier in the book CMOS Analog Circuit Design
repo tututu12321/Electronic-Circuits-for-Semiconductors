@@ -1,0 +1,53 @@
+import numpy as np
+
+# パラメータ設定 / Set parameters
+gm1 = 100e-6  # トランスコンダクタンス g_m1 (S) / Transconductance of M1 (S)
+gm6 = 500e-6  # トランスコンダクタンス g_m6 (S) / Transconductance of M6 (S)
+I5 = 10e-6    # 電流 I5 (A) / Current I5 (A)
+Cc = 1e-12    # ミラー補償容量 Cc (F) / Miller compensation capacitance (F)
+CL = 5e-12    # 負荷容量 CL (F) / Load capacitance (F)
+lambda2 = 0.02  # チャンネル長変調パラメータ λ2 / Channel length modulation parameter
+lambda4 = 0.02  # チャンネル長変調パラメータ λ4 / Channel length modulation parameter
+lambda6 = 0.02  # チャンネル長変調パラメータ λ6 / Channel length modulation parameter
+I6 = 15e-6    # 電流 I6 (A) / Current I6 (A)
+beta3 = 0.2    # ゲートソース電圧 / Gate-source voltage parameter
+beta1 = 0.1    # ゲートソース電圧 / Gate-source voltage parameter
+Vth = 0.7     # 閾値電圧 (V) / Threshold voltage (V)
+
+# スルーレートの計算 / Slew Rate Calculation
+SR = I5 / Cc
+print(f"Slew Rate (SR): {SR:.4e} V/s")
+
+# 第1段の利得の計算 / First Stage Gain (Av1)
+Av1 = -2 * gm1 / (I5 * (lambda2 + lambda4))
+print(f"First Stage Gain (Av1): {Av1:.2f}")
+
+# 第2段の利得の計算 / Second Stage Gain (Av2)
+Av2 = -8 * gm6 / (I6 * (lambda6 + lambda4))
+print(f"Second Stage Gain (Av2): {Av2:.2f}")
+
+# ゲイン帯域幅の計算 / Gain Bandwidth Product (GB)
+GB = gm1 / Cc
+print(f"Gain Bandwidth (GB): {GB:.4e} Hz")
+
+# 出力ポール周波数 p2 の計算 / Output Pole Frequency (p2)
+p2 = -gm6 / CL
+print(f"Output Pole Frequency (p2): {p2:.4e} Hz")
+
+# 右半平面ゼロ z1 の計算 / Right Half Plane Zero (z1)
+z1 = gm6 / Cc
+print(f"Right Half Plane Zero (z1): {z1:.4e} Hz")
+
+# 正のCMRの計算 / Positive CMR Calculation
+VDD = 1.8  # 電源電圧 (V) / Supply voltage
+Vin_max = VDD - (I5 / beta3) - (Vth + 0.3)  # 正のCMRの最大値 (Vin_max)
+print(f"Positive CMR (Vin_max): {Vin_max:.4f} V")
+
+# 負のCMRの計算 / Negative CMR Calculation
+VSS = 0  # 最低電源電圧 / Lowest supply voltage
+Vin_min = VSS + (I5 / beta1) + Vth
+print(f"Negative CMR (Vin_min): {Vin_min:.4f} V")
+
+# 飽和電圧 V_DS(sat) の計算 / Saturation Voltage Calculation
+V_DS_sat = np.sqrt((2 * I5) / beta1)
+print(f"Saturation Voltage (V_DS(sat)): {V_DS_sat:.4f} V")

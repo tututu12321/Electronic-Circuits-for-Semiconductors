@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters (example values, you can replace them with your actual values)
+gm = 1e-3        # Transconductance (S)
+Rd = 1e3         # Drain resistance (Ohms)
+Ci = 10e-12      # Input capacitance (F)
+Co = 5e-12       # Output capacitance (F)
+Rs = 50          # Source resistance (Ohms)
+
+# Frequency range for Bode plot (log scale)
+frequencies = np.logspace(1, 8, 1000)  # Frequency range in Hz
+omega = 2 * np.pi * frequencies        # Angular frequency
+
+# Transfer function G = (1/(1 + jωCiRs)) * (-gmRd) * (1/(1 + jωCoRd))
+G = (1 / (1 + 1j * omega * Ci * Rs)) * (-gm * Rd) * (1 / (1 + 1j * omega * Co * Rd))
+
+# Magnitude and phase calculation
+magnitude = 20 * np.log10(np.abs(G))  # Convert to dB
+phase = np.angle(G, deg=True)         # Convert to degrees
+
+# Plotting the Bode plot
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
+
+# Magnitude plot
+ax1.semilogx(frequencies, magnitude)
+ax1.set_title('Bode Plot of the Transfer Function G')
+ax1.set_ylabel('Magnitude (dB)')
+ax1.grid(True, which='both')
+
+# Phase plot
+ax2.semilogx(frequencies, phase)
+ax2.set_xlabel('Frequency (Hz)')
+ax2.set_ylabel('Phase (degrees)')
+ax2.grid(True, which='both')
+
+# Show the plot
+plt.tight_layout()
+plt.show()

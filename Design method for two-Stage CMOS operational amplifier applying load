@@ -1,0 +1,38 @@
+# Import necessary libraries
+import numpy as np
+
+# Given Constants (You can adjust the values)
+Cc1 = 1e-12  # Capacitance in farads (F)
+Cc2 = 1e-12  # Capacitance in farads (F)
+Cc3 = 1e-12  # Capacitance in farads (F)
+Cox1 = 1e-12  # Oxide capacitance in farads (F)
+Cox2 = 1e-12  # Oxide capacitance in farads (F)
+Reg = 10e3    # Equivalent resistance in ohms (Ω)
+omega_u = 2 * np.pi * 10e6  # Unity gain frequency (rad/s)
+omega_1 = 2 * np.pi * 1e6   # Dominant pole frequency (rad/s)
+
+# Internal Slew Rate Constants
+I_DS = 100e-6  # Drain-source current in amperes (A)
+C_C = 1e-12    # Compensation capacitance in farads (F)
+C_L = 10e-12   # Load capacitance in farads (F)
+I_m = 200e-6   # Bias current for the external slew rate in amperes (A)
+
+# Widths of transistors
+W7 = 10e-6  # Width of transistor M7 in meters (m)
+W5 = 5e-6   # Width of transistor M5 in meters (m)
+
+# Gain calculation (from Equation 6)
+A_s = (omega_u / omega_1) * ((Cc1 * Cc2) / (Cox1 * Reg) + (Cc3 / (Cox2 * Reg)))
+print(f"Gain A(s): {A_s:.4e}")
+
+# Internal Slew Rate Calculation
+SR_internal = I_DS / C_C
+print(f"Internal Slew Rate (SR): {SR_internal:.4e} V/s")
+
+# External Slew Rate Calculation
+SR_external = (I_m - I_DS) / C_L
+print(f"External Slew Rate (SR_ext): {SR_external:.4e} V/s")
+
+# Offset Voltage Minimization (Equation 13)
+ID7 = I_DS * (W7 / W5)
+print(f"Current I_D7: {ID7:.4e} A")

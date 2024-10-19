@@ -1,0 +1,70 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# 与えられたパラメータ (Given Parameters)
+mu_n = 100e-6  # キャリア移動度、例: m^2/Vs (Mobility, example value in m^2/Vs)
+C_ox = 10e-9   # 酸化膜容量、例: F/m^2 (Oxide capacitance, example value in F/m^2)
+W = 10e-6      # トランジスタの幅、例: m (Transistor width, example value in m)
+L = 1e-6       # トランジスタの長さ、例: m (Transistor length, example value in m)
+I_d = 50e-6    # ドレイン電流、例: A (Drain current, example value in A)
+C2 = 10e-12    # 容量C2、例: F (Capacitance C2, example value in F)
+C1 = 5e-12     # 容量C1、例: F (Capacitance C1, example value in F)
+R1 = 10e3      # 抵抗R1、例: オーム (Resistance R1, example value in ohms)
+R2 = 20e3      # 抵抗R2、例: オーム (Resistance R2, example value in ohms)
+g_m7 = 1e-3    # トランスコンダクタンスg_m7、例: S (Transconductance g_m7, example value in S)
+g_m1 = 0.5e-3  # トランスコンダクタンスg_m1、例: S (Transconductance g_m1, example value in S)
+lambda_6 = 0.01  # チャネル長変調パラメータ6 (Channel-length modulation parameter for 6)
+lambda_7 = 0.02  # チャネル長変調パラメータ7 (Channel-length modulation parameter for 7)
+I6 = 50e-6      # 2段目の電流、例: A (Current for second stage, example value in A)
+C_C = 0.2215 * C2  # 最小容量C_C (Minimum capacitance C_C)
+
+# 1. トランスコンダクタンスgmの計算 (Calculate transconductance gm)
+gm = np.sqrt(2 * mu_n * C_ox * (W / L) * I_d)
+print(f"Transconductance gm: {gm:.2e} S")
+
+# 2. ゲイン帯域積(GB)の計算 (Calculate Gain Bandwidth Product (GB))
+GB = g_m1 / C_C
+print(f"Gain Bandwidth Product (GB): {GB:.2e} Hz")
+
+# 3. 1段目のゲインA_v1の計算 (Calculate First Stage Gain A_v1)
+r_o1_2 = 20e3  # 例: 抵抗値 (Example resistance values in ohms)
+r_o3_4 = 30e3  # 例: 抵抗値 (Example resistance values in ohms)
+A_v1 = -g_m1 * (r_o1_2 * r_o3_4) / (r_o1_2 + r_o3_4)
+print(f"First Stage Gain A_v1: {A_v1:.2e}")
+
+# 4. 2段目のゲインA_v2の計算 (Calculate Second Stage Gain A_v2)
+A_v2 = -g_m7 / (I6 * (lambda_6 + lambda_7))
+print(f"Second Stage Gain A_v2: {A_v2:.2e}")
+
+# 5. スルーレート(SR)の計算 (Calculate Slew Rate (SR))
+I5 = 50e-6  # スルーレートの電流、例: A (Current for slew rate calculation, example value)
+SR = I5 / C_C
+print(f"Slew Rate (SR): {SR:.2e} V/s")
+
+# 6. 伝達関数A_v(s)の計算 (Calculate Transfer Function A_v(s))
+a = (C2 + C_C) * R2 + (C1 + C_C) * R1 + g_m7 * R1 * R2 * C_C
+b = R1 * R2 * (C1 * C2 + C1 * C_C + C2 * C_C)
+
+# A_v(s)の伝達関数を定義 (Define the transfer function for A_v(s))
+num = [g_m1 * g_m7 * R1 * R2, -g_m1 * g_m7 * R1 * R2 * C_C / g_m7]
+den = [1, a, b]
+system = signal.TransferFunction(num, den)
+
+# 周波数応答のボード線図 (Bode Plot for Frequency Response)
+w, mag, phase = signal.bode(system)
+
+# ボード線図の描画 (Plot the Bode diagram)
+plt.figure(figsize=(10, 7))
+
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag)    # ボード線図の振幅プロット (Bode magnitude plot)
+plt.title('Bode Plot for A_v(s)')
+plt.ylabel('Magnitude (dB)')
+
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase)  # ボード線図の位相プロット (Bode phase plot)
+plt.ylabel('Phase (degrees)')
+plt.xlabel('Frequency (rad/s)')
+
+plt.show()

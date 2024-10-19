@@ -1,0 +1,70 @@
+import numpy as np
+
+# 与えられたパラメータ
+mu_n_p = 100e-6   # キャリア移動度 (例: 100e-6 m^2/Vs)
+C_ox = 10e-9      # 酸化膜容量 (例: 10e-9 F/m^2)
+W = 10e-6         # トランジスタの幅 (例: 10e-6 m)
+L = 1e-6          # トランジスタの長さ (例: 1e-6 m)
+V_eff = 0.7       # 有効閾値電圧 (例: 0.7 V)
+I_s = 10e-6       # ソース電流 (例: 10e-6 A)
+C_c = 1e-12       # コンデンサ容量 (例: 1pF)
+gm_6 = 5e-3       # gm6 のトランスコンダクタンス
+gds_2 = 1e-3      # gds2 のドレインソースコンダクタンス
+gds_4 = 1e-3      # gds4 のドレインソースコンダクタンス
+gds_5 = 1e-3      # gds5 のドレインソースコンダクタンス
+gds_6 = 1e-3      # gds6 のドレインソースコンダクタンス (追加)
+gds_7 = 1e-3      # gds7 のドレインソースコンダクタンス
+lambda_2 = 1e-3   # λ2 のパラメータ
+lambda_4 = 1e-3   # λ4 のパラメータ
+V_T03_max = 0.9   # VT03 の最大電圧
+V_T03_min = 0.3   # VT03 の最小電圧
+V_T1_max = 1.0    # VT1 の最大電圧
+V_T1_min = 0.2    # VT1 の最小電圧
+
+# Idの計算式 (Eq. 1)
+Id = (mu_n_p * C_ox * (W / L) * V_eff**2) / 2
+print(f"Id: {Id:.4e} A")
+
+# gmの計算 (Eq. 2)
+gm_1 = np.sqrt(2 * mu_n_p * C_ox * (W / L) * Id)
+print(f"gm1: {gm_1:.4e} S")
+
+# gm2の計算 (Eq. 3)
+gm_2 = 2 * Id / V_eff
+print(f"gm2: {gm_2:.4e} S")
+
+# Slew Rateの計算 (Eq. 4)
+SR = I_s / C_c
+print(f"Slew Rate (SR): {SR:.4e} V/s")
+
+# First stage gain A_v1 (Eq. 5)
+A_v1 = -gm_1 / (gds_2 + gds_4 + gds_5)
+print(f"First stage gain (Av1): {A_v1:.4e}")
+
+# Second stage gain A_v2 (Eq. 6)
+A_v2 = -gm_6 / (gds_6 + gds_7)
+print(f"Second stage gain (Av2): {A_v2:.4e}")
+
+# Gain Bandwidth GB (Eq. 7)
+GB = gm_1 / C_c
+print(f"Gain Bandwidth (GB): {GB:.4e} Hz")
+
+# Output pole p2 (Eq. 8)
+p2 = -gm_6 / C_c
+print(f"Output pole (p2): {p2:.4e} Hz")
+
+# RHP zero (Eq. 9)
+Z1 = gm_6 / C_c
+print(f"RHP Zero (Z1): {Z1:.4e} Hz")
+
+# Positive CMR (Eq. 10)
+Vin_max_pos = V_eff - np.sqrt(I_s / lambda_2) - V_T03_max + V_T1_min
+print(f"Positive CMR (Vin_max): {Vin_max_pos:.4e} V")
+
+# Negative CMR (Eq. 11)
+Vin_min_neg = V_eff + np.sqrt(I_s / lambda_2) + V_T1_max + V_T03_min
+print(f"Negative CMR (Vin_min): {Vin_min_neg:.4e} V")
+
+# Saturation voltage V_DS(sat) (Eq. 12)
+V_DS_sat = np.sqrt(2 * Id / lambda_2)
+print(f"Saturation Voltage (V_DS(sat)): {V_DS_sat:.4e} V")

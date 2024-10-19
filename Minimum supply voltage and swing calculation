@@ -1,0 +1,27 @@
+# 必要なライブラリをインポート / Import necessary libraries
+import numpy as np
+
+# パラメータの設定 / Set parameters
+V_th = 0.4  # 閾値電圧 (V) / Threshold voltage (V)
+V_OD = 0.2  # 過剰ドレイン電圧 (V) / Overdrive voltage (V)
+V_CM = 2 * V_OD + V_th  # 同相電圧 (V) / Common-mode voltage (V)
+delta_V_CM = 0.2  # 同相電圧の変動量 (V) / Common-mode voltage swing (V)
+
+# 最小電源電圧を計算 / Calculate minimum supply voltage
+V_DD_min_1 = V_CM + delta_V_CM  # V_th = 0.4 Vのとき / When V_th = 0.4 V
+V_DD_min_2 = V_CM if V_th == 0 else V_CM + delta_V_CM  # V_th = 0 Vの場合 / When V_th = 0 V
+
+# 結果の表示 / Display the results
+print(f"V_th = 0.4 V のときの最小電源電圧: V_DD >= {V_DD_min_1:.1f} V")
+print(f"V_th = 0 V の場合の最小電源電圧: V_DD >= {V_DD_min_2:.1f} V")
+
+# 出力スイング範囲の計算 / Calculate output swing range
+V_out_min = V_CM - V_OD  # 最小出力電圧 / Minimum output voltage
+V_out_max = V_DD_min_1 - V_OD  # 最大出力電圧 (V_DDに依存) / Maximum output voltage depending on V_DD
+
+# 出力スイング幅 / Output swing range
+output_swing = V_out_max - V_out_min
+
+# 出力スイングの表示 / Display output swing
+print(f"出力スイング範囲: {V_out_min:.2f} V ≤ V_out ≤ {V_out_max:.2f} V")
+print(f"出力スイングの幅: {output_swing:.2f} V_p-p")

@@ -1,0 +1,21 @@
+# パラメータの定義 (Defining parameters)
+VDD = 5.0  # 電源電圧 (Power supply voltage) in volts
+Vth_p = -0.7  # PMOSのスレッショルド電圧 (PMOS threshold voltage) in volts
+Vth_n = 0.7  # NMOSのスレッショルド電圧 (NMOS threshold voltage) in volts
+Vov = 0.2  # 過剰電圧 (Overdrive voltage) in volts
+
+# 1. 入力電圧の上限を計算 (Calculating input voltage upper bound)
+Vin_upper_limit = VDD - Vov + Vth_n - abs(Vth_p)
+print(f"入力電圧の上限 (Input Voltage Upper Limit): {Vin_upper_limit:.2f} V")
+
+# 2. 出力電圧の上限を計算 (Calculating output voltage upper bound)
+Vout_upper_limit = VDD - Vov
+print(f"出力電圧の上限 (Output Voltage Upper Limit): {Vout_upper_limit:.2f} V")
+
+# 3. 入力電圧の下限を計算 (Calculating input voltage lower bound)
+Vin_lower_limit = Vth_n + 2 * Vov
+print(f"入力電圧の下限 (Input Voltage Lower Limit): {Vin_lower_limit:.2f} V")
+
+# 4. 出力電圧の下限を計算 (Calculating output voltage lower bound)
+Vout_lower_limit = Vov
+print(f"出力電圧の下限 (Output Voltage Lower Limit): {Vout_lower_limit:.2f} V")

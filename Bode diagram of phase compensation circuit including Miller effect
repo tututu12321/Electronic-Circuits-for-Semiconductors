@@ -1,0 +1,49 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# 回路のパラメータ (Circuit parameters)
+gm1 = 0.2  # トランスコンダクタンス gm1 (S)
+gm2 = 0.2  # トランスコンダクタンス gm2 (S)
+R1 = 10e3    # 抵抗 R1 (ohms)
+R2 = 10e3    # 抵抗 R2 (ohms)
+Rc = 5e3     # 抵抗 Rc (ohms)
+Cc = 1e-12   # コンデンサ Cc (Farads)
+C1 = 4e-12   # コンデンサ C1 (Farads)
+CL = 5e-12   # 負荷コンデンサ CL (Farads)
+
+# 伝達関数の係数を計算 (Calculating transfer function coefficients)
+a1 = C1*R1 + CL*R2 + Cc*(R1*R2 + R1*Rc + R2*Rc)
+a2 = C1*R1*CL*R2 + (Cc*R1*Rc*R2 + C1*Rc*R2 + C1*R1*Rc + CL*R1*Rc)
+a3 = C1*R1*Rc*Cc*CL
+
+# 伝達関数の定義 (Defining the transfer function)
+numerator = [gm1 * gm2 * R1 * R2 * (1 + Cc * Rc)]
+denominator = [a3, a2, a1, 1]
+
+# 伝達関数オブジェクト (Transfer function object)
+system = signal.TransferFunction(numerator, denominator)
+
+# 周波数範囲の設定 (Frequency range setting)
+frequencies = np.logspace(1, 8, 500)  # 1 Hz から 100 MHz までの対数周波数範囲
+w, mag, phase = signal.bode(system, frequencies)
+
+# ボード線図の描画 (Plotting Bode plot)
+plt.figure(figsize=(10, 8))
+
+# ゲインプロット (Gain plot)
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag)  # 周波数に対してゲインを描画
+plt.title('Bode Plot - Magnitude and Phase Response')
+plt.ylabel('Magnitude (dB)')
+plt.grid(True)
+
+# 位相プロット (Phase plot)
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase)  # 周波数に対して位相を描画
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Phase (degrees)')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()

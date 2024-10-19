@@ -1,0 +1,38 @@
+# パラメータ (Parameters)
+rail_to_rail_voltage = 3  # V
+current_consumption_variation = 50  # バイアス電流の変動 (%)
+power_consumption = 100  # 消費電力 (mW)
+dc_gain = 40  # 直流利得 (dB)
+phase_margin = 45  # 位相余裕 (degrees)
+gain_bandwidth_product = 1e6  # 利得帯域幅積 (Hz)
+slew_rate = 0.1  # スルーレート (V/μs)
+thd = 1  # 全高調波歪 (%)
+cmrr = 40  # 同相除去比 (dB)
+psrr_vdd = 40  # 電源電圧変動除去比 (VDD) (dB)
+psrr_vss = 40  # 電源電圧変動除去比 (VSS) (dB)
+output_voltage_range = 5  # 出力電圧範囲 (%)
+common_mode_input_range = 5  # 同相入力範囲 (%)
+area = 1  # 占有面積 (mm^2)
+
+# 制約条件 (Constraints)
+constraints = {
+    "Rail-to-Rail Voltage": rail_to_rail_voltage <= 3,  # 3V以下
+    "Current Consumption Variation": current_consumption_variation <= 50,  # 50%以下
+    "Power Consumption": power_consumption <= 100,  # 100mW以下
+    "DC Gain": dc_gain >= 40,  # 40dB以上
+    "Phase Margin": phase_margin >= 45,  # 45°以上
+    "Gain Bandwidth Product": gain_bandwidth_product >= 1e6,  # 1MHz以上
+    "Slew Rate": slew_rate >= 0.1,  # 0.1V/μs以上
+    "THD": thd <= 1,  # 1%以下
+    "CMRR": cmrr >= 40,  # 40dB以上
+    "PSRR VDD": psrr_vdd >= 40,  # VDD側 40dB以上
+    "PSRR VSS": psrr_vss >= 40,  # VSS側 40dB以上
+    "Output Voltage Range": output_voltage_range >= 5,  # 出力電圧範囲 5%以上
+    "Common Mode Input Range": common_mode_input_range >= 5,  # 同相入力範囲 5%以上
+    "Area": area <= 1  # 1mm^2以下
+}
+
+# 結果を表示 (Display the results)
+for param, is_within_constraint in constraints.items():
+    status = "OK" if is_within_constraint else "NG"
+    print(f"{param}: {status}")

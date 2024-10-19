@@ -1,0 +1,44 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Parameters
+K_CCO = 100.0  # Constant value, example value
+I_cp = 10.0   # Charge pump current, example value
+gm_eq = 1.0  # Transconductance, example value
+C_z = 0.0000001    # Capacitance C_z, example value
+R = 1.0      # Resistance, example value
+R_Cpl = 1.0  # Resistance R_Cpl, example value
+N = 10       # Frequency divider ratio, example value
+
+# Frequency range for the plot (logarithmic scale)
+frequencies = np.logspace(1, 7, 1000)  # Hz
+
+# Transfer function components
+s = 1j * 2 * np.pi * frequencies
+
+# Transfer function H_op based on the provided formula
+H_op = (K_CCO * I_cp / (2 * np.pi * N)) * (1 / s**2) * (gm_eq / C_z) * ((s * R * C_z + 1) / (s * R * R_Cpl + 1))
+
+# Magnitude and phase calculation
+magnitude = 20 * np.log10(np.abs(H_op))
+phase = np.angle(H_op, deg=True)
+
+# Plotting Bode magnitude and phase
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
+
+# Magnitude plot
+ax1.set_title("Bode Plot of PLL Transfer Function")
+ax1.semilogx(frequencies, magnitude)
+ax1.set_ylabel("Magnitude (dB)")
+ax1.grid(True, which="both")
+
+# Phase plot
+ax2.semilogx(frequencies, phase)
+ax2.set_xlabel("Frequency (Hz)")
+ax2.set_ylabel("Phase (degrees)")
+ax2.grid(True, which="both")
+
+# Show plot
+plt.tight_layout()
+plt.show()

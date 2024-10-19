@@ -1,0 +1,29 @@
+import numpy as np
+
+# パラメータの定義 (Defining parameters)
+mu_n = 500e-6  # 電子移動度 (Electron mobility) in cm^2/V·s
+C_ox = 2e-3    # 酸化膜容量 (Oxide capacitance) in F/cm^2
+W_L = 10       # トランジスタのW/L比 (Width to Length ratio)
+V_ov = 0.2     # 過剰電圧 (Overdrive voltage) in V
+g_m2 = 1e-3    # トランスコンダクタンス (Transconductance) in S
+C_out2 = 1e-9  # 出力キャパシタンス (Output capacitance) in F
+C_C = 1e-12    # 補償キャパシタンス (Compensation capacitance) in F
+r_out2 = 1e3   # 出力抵抗 (Output resistance) in ohms
+
+# 1. ドレインソース間の抵抗 r_ds の計算 (Calculating r_ds)
+r_ds = 1 / (mu_n * C_ox * W_L * V_ov)
+print(f"r_ds (ドレインソース間の抵抗): {r_ds} ohms")
+
+# 2. 周波数 ωp2 の計算 (Calculating omega_p2)
+omega_p2 = g_m2 / (C_out2 + C_C)
+print(f"ωp2 (周波数): {omega_p2} rad/s")
+
+# 3. 出力抵抗とキャパシタンスによる周波数の計算 (Output resistance and capacitance frequency)
+omega_p2_compare = 1 / (r_out2 * C_out2)
+print(f"1 / (r_out2 * C_out2) = {omega_p2_compare} rad/s")
+
+# 比較結果を表示 (Comparison result)
+if omega_p2 > omega_p2_compare:
+    print("ωp2 は 1 / (r_out2 * C_out2) よりも大きい")
+else:
+    print("ωp2 は 1 / (r_out2 * C_out2) よりも小さい")

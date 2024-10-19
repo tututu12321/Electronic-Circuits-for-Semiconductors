@@ -1,0 +1,57 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# 伝達関数のパラメータ設定
+A = 1000000000000000  # ゲインの値
+gm7 = 1e-3  # トランスコンダクタンス (単位: S)
+R6 = 10e3   # 抵抗R6 (単位: Ω)
+R4 = 10e3   # 抵抗R4 (単位: Ω)
+Rc = 1e3    # 抵抗Rc (単位: Ω)
+Cc = 1e-12  # コンデンサCc (単位: F)
+CL = 1e-12  # 負荷コンデンサCL (単位: F)
+C2 = 1e-12  # コンデンサC2 (単位: F)
+
+# 各周波数の計算
+wp1 = 1 / (gm7 * R6 * R4 * Cc)
+wp2 = gm7 / CL
+wp3 = 1 / (Rc * C2)
+
+try:
+    wz = 1 / (Cc * (1 / gm7 - Rc))
+except ZeroDivisionError:
+    print("Warning: Zero Division occurred in wz calculation. Setting wz to a very large value.")
+    wz = 1e12  # wz を非常に大きな値に設定することで実質的に影響をなくす
+
+# 伝達関数の定義 (ゲイン A を考慮)
+num = [A, A * wz]  # 零点: ωz
+den = np.polymul([1, wp1], np.polymul([1, wp2], [1, wp3]))  # 極: ωp1, ωp2, ωp3
+
+# 周波数範囲の設定
+w = np.logspace(3, 9, 500)  # 1kHzから1GHzの範囲でプロット
+
+# 伝達関数の作成
+sys = signal.TransferFunction(num, den)
+
+# ゲインと位相の計算
+w, mag, phase = signal.bode(sys, w)
+
+# ボード線図のプロット
+plt.figure(figsize=(10, 8))
+
+# ゲインプロット
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag)  # x軸を対数スケール
+plt.title('Bode Plot - Gain and Phase')
+plt.ylabel('Gain (dB)')
+plt.grid(True)
+
+# 位相プロット
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase)  # x軸を対数スケール
+plt.ylabel('Phase (degrees)')
+plt.xlabel('Frequency (Hz)')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()

@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the supply voltage and the threshold voltage
+Vdd = 5  # Supply voltage (V)
+Vth = 1  # Threshold voltage (V)
+
+# Create a range of input voltages (Vin)
+Vin = np.linspace(0, Vdd, 100)
+
+# Define the transfer function of the CMOS inverter
+def inverter_transfer_function(Vin, Vdd, Vth):
+    Vout = np.piecewise(Vin, 
+                        [Vin < Vth, (Vin >= Vth) & (Vin <= (Vdd - Vth)), Vin > (Vdd - Vth)], 
+                        [Vdd, lambda Vin: Vdd - (Vdd * (Vin - Vth) / (Vdd - 2*Vth)), 0])
+    return Vout
+
+# Calculate the output voltage (Vout) for each input voltage
+Vout = inverter_transfer_function(Vin, Vdd, Vth)
+
+# Plot the transfer curve
+plt.figure(figsize=(8,6))
+plt.plot(Vin, Vout, label="Vout vs Vin", color="red")
+plt.axhline(Vdd, linestyle="--", color="gray")
+plt.axvline(Vth, linestyle="--", color="gray")
+plt.axvline(Vdd - Vth, linestyle="--", color="gray")
+
+# Add labels and title
+plt.title("CMOS Inverter Transfer Curve")
+plt.xlabel("Vin (V)")
+plt.ylabel("Vout (V)")
+plt.grid(True)
+
+# Annotating the regions
+plt.text(0.2, Vdd - 0.5, "Weak Inversion", fontsize=10, color="black")
+plt.text(Vth + 0.5, Vdd/2, "Saturation", fontsize=10, color="black")
+plt.text(Vdd - 0.7, 0.5, "Linear", fontsize=10, color="black")
+
+# Show the plot
+plt.legend()
+plt.show()

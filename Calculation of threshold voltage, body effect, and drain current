@@ -1,0 +1,44 @@
+import numpy as np
+
+# パラメータの設定 / Set parameters
+q = 1.6e-19  # 電子の電荷 (C) / Charge of an electron (C)
+epsilon_si = 11.7 * 8.854e-12  # シリコンの誘電率 (F/m) / Permittivity of silicon (F/m)
+N_sub = 1e22  # ドーピング濃度 (m^-3) / Doping concentration
+C_ox = 3e-2  # 酸化膜容量 (F/m^2) / Oxide capacitance
+phi_F = 0.3  # フェルミ電位 (V) / Fermi potential
+V_SB = 0.2  # ソース-バルク間の電圧 (V) / Source-bulk voltage
+
+# 式 (2.1): 閾値電圧の計算 / Threshold voltage (V_TH) calculation
+phi_MS = 0.2  # 金属とシリコンの仕事関数差 (V) / Work function difference
+Q_dep = np.sqrt(4 * q * epsilon_si * N_sub * phi_F)  # 除去領域の電荷 / Charge in the depletion region
+V_TH0 = phi_MS + 2 * phi_F + Q_dep / C_ox  # 閾値電圧 (V) / Threshold voltage
+
+# 式 (2.23): ボディ効果を考慮した閾値電圧 / Threshold voltage with body effect
+gamma = np.sqrt(2 * q * epsilon_si * N_sub) / C_ox  # ボディ効果係数 / Body effect coefficient
+V_TH = V_TH0 + gamma * (np.sqrt(2 * phi_F + V_SB) - np.sqrt(2 * phi_F))
+
+print(f"閾値電圧 (V_TH0): {V_TH0:.4f} V")
+print(f"ボディ効果を考慮した閾値電圧 (V_TH): {V_TH:.4f} V")
+
+# 式 (ID): ドレイン電流の計算 / Drain current (I_D) calculation
+mu_n = 400e-4  # 電子の移動度 (cm^2/Vs) / Electron mobility
+W = 1e-6  # トランジスタの幅 (m) / Width of the transistor
+L = 1e-6  # トランジスタの長さ (m) / Length of the transistor
+V_GS = 0.9  # ゲート-ソース電圧 (V) / Gate-source voltage
+V_X = 0.1  # 他の端子間電圧 (V) / Voltage at another terminal
+
+I_D = 0.5 * mu_n * C_ox * (W / L) * ((V_GS - V_TH0 - gamma * (np.sqrt(2 * phi_F + V_X) - np.sqrt(2 * phi_F)))**2)
+
+print(f"ドレイン電流 (I_D): {I_D:.6e} A")
+
+# 式 (CDB, CSB): 寄生容量の計算 / Parasitic capacitance calculation
+W = 1e-6  # トランジスタの幅 (m) / Transistor width
+E_Cj = 1e-15  # 接合容量 (F/m^2) / Junction capacitance
+C_jsw = 1e-15  # 周辺寄生容量 (F/m) / Periphery parasitic capacitance
+
+# 接合容量の計算 / Junction capacitance calculation (Fig 2.33a and 2.33b)
+C_DB = W * E_Cj + 2 * (W + E_Cj) * C_jsw
+C_SB = W * E_Cj + 2 * (W + E_Cj) * C_jsw
+
+print(f"ドレイン-バルク寄生容量 (C_DB): {C_DB:.4e} F")
+print(f"ソース-バルク寄生容量 (C_SB): {C_SB:.4e} F")

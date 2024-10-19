@@ -1,0 +1,51 @@
+import numpy as np
+
+# Define constants and parameters
+Cc = 1e-12  # Compensation capacitor (F)
+CL = 5e-12  # Load capacitor (F)
+SR = 1e6    # Slew rate (V/s)
+GB = 10e6   # Gain-bandwidth product (Hz)
+VDD = 1.8   # Supply voltage (V)
+Vin_max = 1.5  # Maximum input common mode voltage (V)
+Vth = 0.7   # Threshold voltage (V)
+Kp = 200e-6 # Process transconductance parameter (A/V^2)
+lambda1 = 0.02 # Channel length modulation for M1
+lambda2 = 0.02 # Channel length modulation for M2
+
+# Step 1: Cc >= 0.2 * CL
+Cc_min = 0.2 * CL
+print(f"Step 1: Minimum Cc = {Cc_min:.2e} F")
+
+# Step 2: Is >= SR * Cc
+Is_min = SR * Cc
+print(f"Step 2: Minimum Is = {Is_min:.2e} A")
+
+# Step 3: Maximum input common mode range
+W3_L3 = Is_min / (Kp * (VDD - Vin_max - Vth)**2)
+W4_L4 = W3_L3  # Assuming W3/L3 = W4/L4
+print(f"Step 3: W3/L3 = W4/L4 = {W3_L3:.2e}")
+
+# Step 4: gm1 = GB * Cc
+gm1 = GB * Cc
+W1_L1 = (gm1**2) / (Kp * Is_min)
+W2_L2 = W1_L1  # Assuming W1/L1 = W2/L2
+print(f"Step 4: W1/L1 = W2/L2 = {W1_L1:.2e}")
+
+# Step 5: Minimum input common mode range
+W5_L5 = 2 * Is_min / (Kp * Vth**2)
+print(f"Step 5: W5/L5 = {W5_L5:.2e}")
+
+# Step 6: DC balance conditions
+gm4 = gm1 / 10  # Assuming gm6 ≈ 10gm1
+W6_L6 = gm4 * W1_L1 / gm1
+print(f"Step 6: W6/L6 = {W6_L6:.2e}")
+
+# Step 7: Determines the current in M7
+I6 = gm4**2 / (2 * Kp * W6_L6)
+print(f"Step 7: I6 = {I6:.2e} A")
+
+# Step 8: Check gain and power dissipation
+Av = 2 * gm1 * gm4 / (Is_min * (lambda1 + lambda2))
+P_diss = (Is_min + I6) * (VDD + Vth)
+print(f"Step 8: Gain Av = {Av:.2e}, Power dissipation = {P_diss:.2e} W")
+

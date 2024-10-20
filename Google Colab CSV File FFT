@@ -1,0 +1,127 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from google.colab import files
+
+# CSVファイルをアップロードする
+uploaded = files.upload()
+
+# CSVファイルを読み込む
+csv_filename = list(uploaded.keys())[0]  # アップロードしたファイル名を取得
+csv_data = np.loadtxt(csv_filename, delimiter=",", skiprows=2)  # ヘッダーをスキップ
+
+# コヒーレントサンプリングされた波形を1周期に並び替える関数
+def wave_sort(data, fs, f_signal):
+    data_num = len(data)
+    t_signal = 1 / f_signal
+    Ts = 1 / fs
+    N_cycle = int(Ts * data_num / t_signal + 0.5)
+
+    dx_list = []
+    for n in range(data_num):
+        i = int((Ts * n) / t_signal)
+        dx_list.append((Ts * n) - (t_signal * i))
+
+    sorted_indices = sorted(range(len(dx_list)), key=lambda k: dx_list[k])
+    sorted_data = [data[i] for i in sorted_indices]
+
+    return sorted_data
+
+# サンプル数と時間刻み
+N = 64
+dt = 1e-6
+
+# データ処理
+f = []
+counter = 0
+tmp = 1.8e-6
+data_num = 0
+
+# データの列数を取得
+num_columns = csv_data.shape[1]
+
+# 列数に基づいて処理する
+for i in csv_data[:, 0]:
+    data = 0
+    if (tmp - i) < 0:
+        # 列数に応じてループの範囲を調整
+        for j in range(min(8, num_columns - 1)):  # 列数に応じてjの範囲を設定
+            if csv_data[counter, j + 1] > 1:
+                data += 2 ** j
+        f.append(data)
+        tmp += 1e-6
+        data_num += 1
+
+    counter += 1
+    if data_num > 63:
+        break
+
+# 時間軸
+t = np.arange(0, N * dt, dt)
+
+# FFT
+F = np.fft.fft(f)
+F[F == 0] = 1E-9  # ゼロ除算防止
+
+# 周波数軸
+freq = np.fft.fftfreq(N, dt)
+freq_norm = freq / (1 / dt)
+
+# パワースペクトル
+Power = np.abs(F) ** 2
+
+# 最大シグナルを探す
+max_index = np.argmax(Power[1:int(N / 2)]) + 1
+Signal = Power[max_index]
+
+# パワースペクトルをdB値に変換
+Pow_dB = 10 * np.log10(Power / Signal)
+
+# ノイズ計算
+Noise = np.sum(Power[1:int(N / 2)]) - Signal
+
+# SNDRとENOB
+SNDR = 10 * np.log10(Signal / Noise)
+ENOB = (SNDR - 1.76) / 6.02
+
+print("SNDR=", SNDR, "dB")
+print("ENOB=", ENOB, "bit")
+
+# 波形の並び替え
+f = wave_sort(f, 1 / dt, 109.375e3)
+
+# グラフ表示
+plt.figure(figsize=(16, 8))
+plt.subplot(121)
+plt.plot(t, f, marker='.', markersize=5, label='f(n)')
+plt.xlabel("Time [sec]")
+plt.ylabel("Signal")
+plt.grid()
+
+plt.subplot(122)
+plt.plot(freq_norm[1:int(N / 2)], Pow_dB[1:int(N / 2)], label='|F(k)|')
+plt.xlabel('f/fs')
+plt.ylabel('Power [dB]')
+plt.text(0.4, -5.3, "SNDR = " + str(round(SNDR, 2)) + " dB")
+plt.text(0.4, -10.3, "ENOB = " + str(round(ENOB, 2)) + " bit")
+plt.grid()
+plt.show()
+
+# 2周期分の信号を表示
+f = f + f
+t = np.arange(0, 2 * N * dt, dt)
+
+plt.figure(figsize=(16, 8))
+plt.subplot(121)
+plt.plot(t, f, marker='.', markersize=5, label='f(n)')
+plt.xlabel("Time [sec]")
+plt.ylabel("Signal")
+plt.grid()
+
+plt.subplot(122)
+plt.plot(freq_norm[1:int(N / 2)], Pow_dB[1:int(N / 2)], label='|F(k)|')
+plt.xlabel('f/fs')
+plt.ylabel('Power [dB]')
+plt.text(0.4, -5.3, "SNDR = " + str(round(SNDR, 2)) + " dB")
+plt.text(0.4, -10.3, "ENOB = " + str(round(ENOB, 2)) + " bit")
+plt.grid()
+plt.show()

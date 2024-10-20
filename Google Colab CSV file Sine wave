@@ -1,0 +1,23 @@
+import numpy as np
+import pandas as pd
+from google.colab import files
+
+# サイン波のパラメータ
+fs = 1000  # サンプリング周波数 [Hz]
+f = 50  # 信号の周波数 [Hz]
+T = 1  # 信号の継続時間 [秒]
+t = np.arange(0, T, 1/fs)  # 時間軸
+amplitude = 1  # 振幅
+
+# サイン波の生成
+signal = amplitude * np.sin(2 * np.pi * f * t)
+
+# データフレームに変換してCSVに保存
+df = pd.DataFrame({'Time': t, 'Signal': signal})
+csv_filename = "sine_wave.csv"
+df.to_csv(csv_filename, index=False)
+
+# ファイルをダウンロードできるようにする
+files.download(csv_filename)
+
+print(f"サイン波データが{csv_filename}に保存され、ダウンロードが可能です。")

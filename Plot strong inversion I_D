@@ -1,0 +1,42 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Constants / 定数
+mu_n = 200e-4  # Electron mobility / 電子移動度 [cm^2/Vs]
+C_ox = 3.45e-8  # Gate oxide capacitance per unit area / ゲート酸化膜の容量 [F/cm^2]
+W = 1e-4  # Width of the MOSFET channel / MOSFETチャネル幅 [cm]
+L = 1e-4  # Length of the MOSFET channel / MOSFETチャネル長 [cm]
+V_TH = 1  # Threshold voltage / 閾値電圧 [V]
+V_DS = 1  # Drain-Source voltage / ドレイン-ソース電圧 [V]
+V_T = 26e-3  # Thermal voltage / 熱電圧 [V]
+I_t = 1e-6  # Reference current for weak inversion / 弱反転の参照電流 [A]
+n = 1.5  # Subthreshold slope factor / サブスレッショルドスロープファクター
+
+# V_GS range / V_GSの範囲
+V_GS = np.linspace(0, 3, 400)
+
+# Strong inversion region / 強反転領域
+I_D_strong = (mu_n * C_ox * (W / L) / 2) * np.maximum(V_GS - V_TH, 0)**2
+
+# Weak inversion region / 弱反転領域
+I_D_weak = (W / L) * I_t * np.exp((V_GS - V_TH) / (n * V_T)) * (1 - np.exp(-V_DS / V_T))
+
+# Plotting / プロット
+plt.figure(figsize=(8, 6))
+
+# Plot strong inversion I_D / 強反転領域の I_D をプロット
+plt.plot(V_GS, I_D_strong * 1e6, label='Strong Inversion $I_D$ (Strong)', color='blue')
+
+# Plot weak inversion I_D / 弱反転領域の I_D をプロット
+plt.plot(V_GS, I_D_weak * 1e6, label='Weak Inversion $I_D$ (Weak)', color='green', linestyle='--')
+
+# Labels / ラベル
+plt.xlabel('Gate-Source Voltage $V_{GS}$ [V]', fontsize=12)
+plt.ylabel('Drain Current $I_D$ [$\mu$A]', fontsize=12)
+plt.title('$I_D$ vs $V_{GS}$ Characteristics', fontsize=14)
+plt.grid(True)
+plt.legend(loc='upper left')
+
+# Display plot / グラフの表示
+plt.tight_layout()
+plt.show()

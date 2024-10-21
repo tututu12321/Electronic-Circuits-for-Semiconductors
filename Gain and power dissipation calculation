@@ -1,0 +1,38 @@
+import numpy as np
+
+# Constants
+I_5 = 30e-6  # Tail current (A)
+I_6 = 95e-6  # Calculated current for M6 (A)
+V_DD = 2.5   # Supply voltage (V)
+V_SS = -2.5  # Negative supply voltage (V)
+V_out_max = 2  # Max output voltage (V)
+V_TN = 0.5  # Threshold voltage for NMOS (V)
+V_TP = 0.5  # Threshold voltage for PMOS (V)
+lambda_n = 0.06  # Channel length modulation for NMOS
+lambda_p = 0.08  # Channel length modulation for PMOS
+g_m1 = 94.25e-6  # Transconductance of M1 (S)
+g_m6 = 942.5e-6  # Transconductance of M6 (S)
+g_m4 = 150e-6    # Transconductance of M4 (S)
+C_L = 10e-12     # Load capacitance (F)
+C_C = 3e-12      # Compensation capacitance (F)
+K_N = 120e-6     # Process transconductance parameter for NMOS (A/V^2)
+K_P = 25e-6      # Process transconductance parameter for PMOS (A/V^2)
+W_L_3 = 30       # W/L ratio for M3 and M4
+
+# Gain and power dissipation calculation
+Av = (g_m1 * g_m6) / (I_5 * (lambda_n + lambda_p) * I_6 * (lambda_n + lambda_p))
+P_diss = (I_5 + I_6) * (V_DD - V_SS)
+
+# W/L ratios
+W_L_6 = 30 * g_m6 / g_m4  # For M6
+W_L_7 = 6 * I_6 / I_5     # For M7
+
+# Output minimum voltage
+V_DS7_sat = np.sqrt(2 * I_6 / (120 * 20))  # Saturation voltage for M7
+
+# Output results
+print(f"First stage gain (A_v1): {Av:.2f} V/V")
+print(f"Power dissipation (P_diss): {P_diss:.2e} W")
+print(f"W/L ratio for M6 (W/L_6): {W_L_6:.2f}")
+print(f"W/L ratio for M7 (W/L_7): {W_L_7:.2f}")
+print(f"Minimum output voltage (V_out_min): {V_DS7_sat:.3f} V")

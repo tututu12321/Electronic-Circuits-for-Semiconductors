@@ -1,0 +1,73 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import quad
+
+### Fourier Series Calculation ###
+
+# Define the function f(x) over one period / 関数 f(x) を1周期上で定義
+def f(x):
+    return np.abs(np.sin(x))  # Example function / 例として絶対値の正弦関数
+
+# Fourier series coefficients / フーリエ級数の係数を計算
+def a_n(n):
+    result, _ = quad(lambda x: f(x) * np.cos(n * x), -np.pi, np.pi)
+    return result / np.pi
+
+def b_n(n):
+    result, _ = quad(lambda x: f(x) * np.sin(n * x), -np.pi, np.pi)
+    return result / np.pi
+
+# Fourier series approximation with N terms / N項のフーリエ級数近似
+def fourier_series(x, N):
+    a0 = a_n(0)
+    series = a0 / 2
+    for n in range(1, N + 1):
+        series += a_n(n) * np.cos(n * x) + b_n(n) * np.sin(n * x)
+    return series
+
+# Fourier Series Plotting / フーリエ級数プロット
+x_vals = np.linspace(-2*np.pi, 2*np.pi, 500)
+N_terms = 10  # Number of Fourier series terms / フーリエ級数の項数
+
+plt.figure(figsize=(8, 6))
+plt.plot(x_vals, f(x_vals), label='Original Function $f(x)$', color='blue')
+plt.plot(x_vals, fourier_series(x_vals, N_terms), label=f'Fourier Series Approx. (N={N_terms})', color='red', linestyle='--')
+plt.xlabel('$x$')
+plt.ylabel('$f(x)$')
+plt.title('Fourier Series Approximation of $f(x)$')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+### Fourier Transform Calculation using FFT ###
+
+# Define a time-domain signal / 時間領域の信号を定義
+T = 1.0  # Period / 周期
+N = 500  # Number of sample points / サンプルポイント数
+t = np.linspace(0.0, N*T, N, endpoint=False)
+f_t = np.sin(50.0 * 2.0*np.pi*t) + 0.5*np.sin(80.0 * 2.0*np.pi*t)
+
+# Compute the Fourier Transform using FFT / FFTを使ってフーリエ変換を計算
+f_transform = np.fft.fft(f_t)
+frequencies = np.fft.fftfreq(N, T)
+
+# Plot the original signal / 元の信号をプロット
+plt.figure(figsize=(8, 6))
+plt.plot(t, f_t, label="Original Signal")
+plt.xlabel('Time [s]')
+plt.ylabel('Amplitude')
+plt.title('Time-Domain Signal')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# Plot the Fourier Transform (Frequency domain) / フーリエ変換（周波数領域）をプロット
+plt.figure(figsize=(8, 6))
+plt.plot(frequencies, np.abs(f_transform), label="Fourier Transform (Magnitude)")
+plt.xlabel('Frequency [Hz]')
+plt.ylabel('Magnitude')
+plt.title('Frequency-Domain Signal (Fourier Transform)')
+plt.grid(True)
+plt.tight_layout()
+plt.show()

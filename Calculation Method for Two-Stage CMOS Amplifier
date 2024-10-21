@@ -1,0 +1,166 @@
+import numpy as np
+
+# 定数やパラメータの定義
+VDD = 5.0  # 例: VDDの電圧 (V)
+VSS = -5.0  # 例: VSSの電圧 (V)
+beta_1 = 0.1  # トランジスタ1のβ値
+beta_3 = 0.1  # トランジスタ3のβ値
+VT03_max = 1.0  # 例: V_T03(max) (V)
+VT1_min = 0.7  # 例: V_T1(min) (V)
+VT1_max = 0.9  # 例: V_T1(max) (V)
+VDSS_sat = 0.2  # 例: V_DSS(sat) (V)
+I5 = 0.01  # 例: I_5の値 (A)
+gm1 = 1e-3  # 例: g_m1 (S)
+gm6 = 1e-3  # 例: g_m6 (S)
+CL = 10e-12  # 例: C_L (F)
+CC = 2.2e-12  # 例: C_C (F)
+lambda_2 = 0.02  # 例: λ_2
+lambda_4 = 0.02  # 例: λ_4
+lambda_6 = 0.02  # 例: λ_6
+lambda_7 = 0.02  # 例: λ_7
+ID_DS = 0.01  # 例: I_DSの値 (A)
+beta = 0.05  # 例: β値 (A/V^2)
+Ts = 1e-6  # 例: 設定時間 (s)
+K3 = 1e-3  # 例: K3 (A/V^2)
+Vin_max = 1.0  # 例: Vin(max) (V)
+
+# スルーレート計算
+def slew_rate(I5, CC):
+    return I5 / CC
+
+# 第一段階のゲイン
+def first_stage_gain(gm1, lambda_2, lambda_4):
+    return (2 * gm1) / (lambda_2 + lambda_4)
+
+# 第二段階のゲイン
+def second_stage_gain(gm6, I6, lambda_6, lambda_7):
+    return (8 * gm6) / (I6 * (lambda_6 + lambda_7))
+
+# ゲイン帯域幅
+def gain_bandwidth(gm1, CC):
+    return gm1 / CC
+
+# 出力ポールp2
+def output_pole_p2(gm6, CL):
+    return -gm6 / CL
+
+# 右半面零点 z1
+def rhp_zero_z1(gm6, CC):
+    return gm6 / CC
+
+# 正のICMR
+def icmr_positive(VDD, I5, beta_3, VT03_max, VT1_min):
+    return VDD - np.sqrt(I5 / beta_3) - (VT03_max + VT1_min)
+
+# 負のICMR
+def icmr_negative(VSS, I5, beta_1, VT1_max, VDSS_sat):
+    return VSS + np.sqrt(I5 / beta_1) + VT1_max + VDSS_sat
+
+# 飽和電圧 VDS(sat)
+def vds_sat(ID_DS, beta):
+    return np.sqrt(2 * ID_DS / beta)
+
+# C_Cの最小値計算
+def min_CC(CL):
+    return 0.22 * CL
+
+# I5の最小値計算
+def min_I5(SR, CC, VDD, VSS, Ts):
+    I5_1 = SR * CC
+    I5_2 = 10 * (VDD + abs(VSS)) / (2 * Ts)
+    return max(I5_1, I5_2)
+
+# S3の設計計算
+def design_S3(K3, VDD, Vin_max, VT03_max, VT1_min):
+    return K3 * ((VDD - Vin_max) - (VT03_max + VT1_min))**2
+
+# M3のポール確認
+def check_pole(gm3, Cgs3, GB):
+    return (8 * gm3) / (2 * Cgs3) > 10 * GB
+
+# (W/L)_6, I_6, P_diss, (W/L)_7, V_out(min), A_v, ΔLの計算
+def additional_calculations():
+    g_m6 = 942.5e-6  # μS to S
+    g_m4 = 150e-6    # μS to S
+    I_1 = 30e-6      # μA to A
+    I_6 = 95e-6      # μA to A
+    V_DD = 5         # V
+    V_out_max = 0.351 # V
+
+    # (W/L)6の計算
+    W_L6 = 15 * (g_m6 / g_m4)
+    W_L6_rounded = round(W_L6)
+    print(f"(W/L)_6 = {W_L6:.2f} ≈ {W_L6_rounded}")
+
+    # I_6の計算
+    I_6_calculated = (g_m6**2) / (2 * 50e-6 * 94.25e-6)
+    I_6_rounded = round(I_6_calculated)
+    print(f"I_6 = {I_6_calculated:.2f} A ≈ {I_6_rounded} A")
+
+    # P_dissの計算
+    P_diss = V_DD * (I_1 + I_6)
+    print(f"P_diss = {P_diss:.3f} mW")
+
+    # (W/L)7の計算
+    W_L7 = 4.5
+    W_L7_calculated = 14.25
+    W_L7_rounded = round(W_L7_calculated)
+    print(f"(W/L)_7 = {W_L7_calculated:.2f} ≈ {W_L7_rounded}")
+
+    # V_out(min)の計算
+    V_out_min = (2.95 / (110 * 14))**0.5
+    print(f"V_out(min) = {V_out_min:.3f} V")
+
+    # 増幅率の計算
+    A_v = 15e-6 * (0.04 + 0.05)
+    print(f"A_v = {A_v:.2f} V/V")
+
+    # WとLの調整
+    delta_L = 0.2e-6  # μm to m
+    print(f"Adjusted dimensions with ΔL = {delta_L:.2f} m")
+
+# 伝達関数計算
+def transfer_function(A_v1, A_v2, s, p1, p2, z1):
+    numerator = A_v1 * A_v2 * (1 + z1 / s)  # 分子: ゼロの影響を含む
+    denominator = (1 + s / p1) * (1 + s / p2)  # 分母: ポールの影響を含む
+    return numerator / denominator
+
+# 使用例
+SR = slew_rate(I5, CC)
+A_v1 = first_stage_gain(gm1, lambda_2, lambda_4)
+A_v2 = second_stage_gain(gm6, I5, lambda_6, lambda_7)
+GB = gain_bandwidth(gm1, CC)
+p2 = output_pole_p2(gm6, CL)
+z1 = rhp_zero_z1(gm6, CC)
+Vin_max_positive = icmr_positive(VDD, I5, beta_3, VT03_max, VT1_min)
+Vin_min_negative = icmr_negative(VSS, I5, beta_1, VT1_max, VDSS_sat)
+VDS_sat_value = vds_sat(ID_DS, beta)
+min_CC_value = min_CC(CL)
+min_I5_value = min_I5(SR, CC, VDD, VSS, Ts)
+S3_value = design_S3(K3, VDD, Vin_max, VT03_max, VT1_min)
+pole_check = check_pole(gm1, 1e-12, GB)  # 例: Cgs3を1pFと仮定
+
+# 伝達関数計算例
+s = 1e3  # 周波数変数
+p1 = 1e6  # 第一ポール
+p2 = 1e7  # 第二ポール
+H_s = transfer_function(A_v1, A_v2, s, p1, p2, z1)
+
+# 結果の表示
+print(f"Slew Rate: {SR} V/s")
+print(f"First Stage Gain: {A_v1}")
+print(f"Second Stage Gain: {A_v2}")
+print(f"Gain Bandwidth (GB): {GB}")
+print(f"Output Pole p2: {p2}")
+print(f"RHP Zero z1: {z1}")
+print(f"Positive ICMR (Vin_max): {Vin_max_positive} V")
+print(f"Negative ICMR (Vin_min): {Vin_min_negative} V")
+print(f"Saturation Voltage VDS(sat): {VDS_sat_value} V")
+print(f"Minimum CC: {min_CC_value} F")
+print(f"Minimum I5: {min_I5_value} A")
+print(f"Design S3: {S3_value}")
+print(f"Pole Check: {pole_check}")
+print(f"Transfer Function H(s) = {H_s}")
+
+# 追加の計算
+additional_calculations()

@@ -1,0 +1,41 @@
+# 接頭辞とそれに対応する10の累乗の辞書
+unit_prefixes = {
+    'f': 10**-15,  # フェムト
+    'p': 10**-12,  # ピコ
+    'n': 10**-9,   # ナノ
+    'μ': 10**-6,   # マイクロ
+    'm': 10**-3,   # ミリ
+    'k': 10**3,    # キロ
+    'M': 10**6,    # メガ
+    'G': 10**9,    # ギガ
+    'T': 10**12    # テラ
+}
+
+# 単位変換関数
+def convert_value(value, from_unit, to_unit):
+    """
+    数値を指定された単位から別の単位に変換します。
+    value: 変換する数値
+    from_unit: 変換元の単位接頭辞 (例: 'k', 'M', 'μ' など)
+    to_unit: 変換先の単位接頭辞 (例: 'k', 'M', 'μ' など)
+    """
+    if from_unit not in unit_prefixes or to_unit not in unit_prefixes:
+        raise ValueError("無効な単位接頭辞が指定されました。")
+    
+    # 変換元の単位を標準単位に戻す
+    base_value = value * unit_prefixes[from_unit]
+    
+    # 標準単位から変換先の単位に変換
+    converted_value = base_value / unit_prefixes[to_unit]
+    
+    return converted_value
+
+# 使用例: 5キロオームをメガオームに変換
+value_in_kiloohms = 5
+converted_value = convert_value(value_in_kiloohms, 'k', 'M')
+print(f"5キロオームは {converted_value} メガオームです。")
+
+# 使用例2: 1000マイクロアンペアをミリアンペアに変換
+value_in_microamps = 1000
+converted_value = convert_value(value_in_microamps, 'μ', 'm')
+print(f"1000マイクロアンペアは {converted_value} ミリアンペアです。")

@@ -1,0 +1,16 @@
+# Compute the value of F(0) explicitly / F(0) を明示的に計算
+F_0 = 2 * tau  # F(omega=0) = 2 * tau
+
+# Normalize the Fourier transform by F(0) / F(0)でフーリエ変換を正規化
+F_normalized = F_transform / F_0  # Normalize by F(0)
+
+# Plot the normalized spectrum / 正規化されたスペクトルをプロット
+plt.figure(figsize=(8, 6))
+plt.plot(omega, F_normalized, label=r'Normalized $F(\omega)/F(0)$', color='orange')
+plt.xlabel('Angular Frequency $\\omega$ [rad/s]')
+plt.ylabel('Normalized Amplitude')
+plt.title('Normalized Fourier Transform of Pulse Function')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()

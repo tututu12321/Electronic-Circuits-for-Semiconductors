@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters for the second-order and third-order systems / 2次および3次システムのパラメータ
+K_values = [5, 10, 20]  # Different gain values for the second-order system / 2次系の異なるKの値
+a2, b2 = 1, 2  # Second-order system constants / 2次系の定数
+
+K_values_3 = [10, 30, 60]  # Different gain values for the third-order system / 3次系の異なるKの値
+a3, b3, c3 = 1, 2, 3  # Third-order system constants / 3次系の定数
+
+# Frequency range / 周波数範囲
+omega = np.linspace(0, 10, 1000)
+
+# Second-order transfer function response / 2次系の伝達関数の応答
+def G_2nd(K, omega, a, b):
+    magnitude = K / np.sqrt((a * b - omega**2)**2 + ((a + b) * omega)**2)
+    phase = -np.arctan2((a + b) * omega, a * b - omega**2)
+    return magnitude, phase
+
+# Third-order transfer function response / 3次系の伝達関数の応答
+def G_3rd(K, omega, a, b, c):
+    magnitude = K / np.sqrt((a*b*c - (a + b)*omega**2 - c*omega**2)**2 +
+                            ((a*b*omega - omega**3) + (a + b)*c*omega)**2)
+    phase = -np.arctan2((a*b*omega - omega**3 + (a + b)*c*omega),
+                        (a*b*c - (a + b)*omega**2 - c*omega**2))
+    return magnitude, phase
+
+# Plot second-order system / 2次系のプロット
+plt.figure(figsize=(10, 6))
+for K in K_values:
+    mag_2nd, phase_2nd = G_2nd(K, omega, a2, b2)
+    plt.plot(mag_2nd * np.cos(phase_2nd), mag_2nd * np.sin(phase_2nd), label=f'K={K}')
+plt.xlabel(r'$\sigma$')
+plt.ylabel(r'$j\omega$')
+plt.title('Second-order System Vector Trajectory')
+plt.axhline(0, color='black',linewidth=0.5)
+plt.axvline(0, color='black',linewidth=0.5)
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Plot third-order system / 3次系のプロット
+plt.figure(figsize=(10, 6))
+for K in K_values_3:
+    mag_3rd, phase_3rd = G_3rd(K, omega, a3, b3, c3)
+    plt.plot(mag_3rd * np.cos(phase_3rd), mag_3rd * np.sin(phase_3rd), label=f'K={K}')
+plt.xlabel(r'$\sigma$')
+plt.ylabel(r'$j\omega$')
+plt.title('Third-order System Vector Trajectory')
+plt.axhline(0, color='black',linewidth=0.5)
+plt.axvline(0, color='black',linewidth=0.5)
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()

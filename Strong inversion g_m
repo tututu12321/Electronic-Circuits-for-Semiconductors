@@ -1,0 +1,49 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Constants / 定数
+I_TAIL = 20e-6  # Tail current / テール電流 [A]
+V_T = 26e-3  # Thermal voltage / 熱電圧 [V]
+n = 1.5  # Subthreshold swing factor / サブスレッショルドスイング係数
+mu_p = 200e-4  # Electron mobility / 電子移動度 [cm^2/Vs]
+C_ox = 3.45e-8  # Gate oxide capacitance per unit area / ゲート酸化膜の容量 [F/cm^2]
+W = 1e-4  # Width of the MOSFET channel / MOSFETチャネル幅 [cm]
+L = 1e-4  # Length of the MOSFET channel / MOSFETチャネル長 [cm]
+
+# V_ID range / V_ID の範囲
+V_ID = np.linspace(-200e-3, 200e-3, 400)  # -200mV to 200mV
+
+# Strong inversion region / 強反転領域 (Using equation from the new image)
+I_O_strong = (mu_p * C_ox * W / L) / 2 * V_ID * np.sqrt(4 * I_TAIL / (mu_p * C_ox * (W / L)) - V_ID**2)
+
+# Strong inversion g_m / 強反転領域の g_m
+g_m_strong = (mu_p * C_ox * W / L) / 2 * (4 * I_TAIL / (mu_p * C_ox * (W / L)) - 2 * V_ID**2) / np.sqrt(4 * I_TAIL / (mu_p * C_ox * (W / L)) - V_ID**2)
+
+# Weak inversion region / 弱反転領域 (Equations 3.3.21 and 3.3.22)
+I_O_weak = I_TAIL / (1 + np.exp(-V_ID / (n * V_T))) - I_TAIL / (1 + np.exp(V_ID / (n * V_T)))
+g_m_weak = (I_TAIL / (n * V_T)) * (np.exp(-V_ID / (n * V_T)) / (1 + np.exp(-V_ID / (n * V_T)))**2 + 
+           np.exp(V_ID / (n * V_T)) / (1 + np.exp(V_ID / (n * V_T)))**2)
+
+# Plot 1: I_O for both strong and weak inversion / I_O プロット
+plt.figure(figsize=(8, 6))
+plt.plot(V_ID * 1e3, I_O_strong * 1e6, label='Strong Inversion $I_O$ (Strong)', color='black', linestyle='--')
+plt.plot(V_ID * 1e3, I_O_weak * 1e6, label='Weak Inversion $I_O$ (Weak)', color='black')
+plt.xlabel('$V_{ID}$ [mV]', fontsize=12)
+plt.ylabel('$I_O$ [$\mu$A]', fontsize=12)
+plt.title('$I_O$ vs $V_{ID}$ Characteristics', fontsize=14)
+plt.grid(True)
+plt.legend(loc='upper left')
+plt.tight_layout()
+plt.show()
+
+# Plot 2: g_m for both strong and weak inversion / g_m プロット
+plt.figure(figsize=(8, 6))
+plt.plot(V_ID * 1e3, g_m_strong * 1e6, label='Strong Inversion $g_m$ (Strong)', color='blue', linestyle='--')
+plt.plot(V_ID * 1e3, g_m_weak * 1e6, label='Weak Inversion $g_m$ (Weak)', color='blue')
+plt.xlabel('$V_{ID}$ [mV]', fontsize=12)
+plt.ylabel('$g_m$ [$\mu$S]', fontsize=12)
+plt.title('$g_m$ vs $V_{ID}$ Characteristics', fontsize=14)
+plt.grid(True)
+plt.legend(loc='upper left')
+plt.tight_layout()
+plt.show()

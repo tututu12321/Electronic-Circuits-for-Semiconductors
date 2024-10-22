@@ -1,0 +1,19 @@
+# 与えられた値
+Vcc = 5.0       # 電源電圧 (V)
+Vf = 2.0        # LEDの順方向電圧 (V)
+Ic = 10e-3      # コレクタ電流 (A)
+hfe = 200       # トランジスタの電流増幅率
+Vbe = 0.7       # ベース-エミッタ間の電圧 (V)
+Ib_multiplier = 2.0  # ベース電流の余裕（2倍）
+
+# コレクタ抵抗 Rc の計算
+Rc = (Vcc - Vf) / Ic
+print(f"コレクタ抵抗 Rc: {Rc:.2f} Ω")
+
+# ベース電流 Ib の計算（オーバードライブを考慮）
+Ib = (Ic / hfe) * Ib_multiplier
+print(f"ベース電流 Ib: {Ib:.5f} A")
+
+# ベース抵抗 Rb の計算
+Rb = (Vcc - Vbe) / Ib
+print(f"ベース抵抗 Rb: {Rb / 1e3:.2f} kΩ")

@@ -1,0 +1,48 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# 伝達関数のパラメータ
+def transfer_function(T, cutoff_frequency):
+    # カットオフ周波数に基づく伝達関数
+    return signal.TransferFunction([1], [T, 1])
+
+# ボード線図をプロットする関数
+def plot_bode(transfer_func, title):
+    w, mag, phase = signal.bode(transfer_func)
+
+    plt.figure(figsize=(10, 8))
+
+    # ゲイン（Magnitude）のプロット
+    plt.subplot(2, 1, 1)
+    plt.semilogx(w, mag)  # 周波数軸を対数軸にする
+    plt.title(f'Bode plot of {title}')
+    plt.ylabel('Magnitude (dB)')
+    plt.grid(True)
+
+    # 位相（Phase）のプロット
+    plt.subplot(2, 1, 2)
+    plt.semilogx(w, phase)
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Phase (degrees)')
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.show()
+
+# ボルテージフォロワー（カットオフ周波数 6010.19 Hz）の伝達関数
+T1 = 1 / (2 * np.pi * 6010.19)  # カットオフ周波数から T を計算
+tf_voltage_follower = transfer_function(T1, 6010.19)
+plot_bode(tf_voltage_follower, 'Voltage Follower (Cutoff = 6010.19 Hz)')
+
+# 反転アンプ（カットオフ周波数 439.95 Hz）の伝達関数
+gain_inverting = 100e3 / 10e3  # ゲイン
+T2 = 1 / (2 * np.pi * 439.95)
+tf_inverting_amp = signal.TransferFunction([-gain_inverting], [T2, 1])
+plot_bode(tf_inverting_amp, 'Inverting Amplifier (Cutoff = 439.95 Hz)')
+
+# 非反転アンプ（カットオフ周波数 584.60 Hz）の伝達関数
+gain_non_inverting = 1 + 100e3 / 11e3
+T3 = 1 / (2 * np.pi * 584.60)
+tf_non_inverting_amp = signal.TransferFunction([gain_non_inverting], [T3, 1])
+plot_bode(tf_non_inverting_amp, 'Non-Inverting Amplifier (Cutoff = 584.60 Hz)')

@@ -1,0 +1,35 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Parameters
+A_db = 100  # Gain in dB
+A = 10 ** (A_db / 20)  # Convert dB to linear scale
+cutoff_frequency = 526.05e3  # Cutoff frequency in Hz
+T = 1 / (2 * np.pi * cutoff_frequency)  # Time constant
+
+# Transfer function: A / (Ts + 1)
+numerator = [A]
+denominator = [T, 1]
+system = signal.TransferFunction(numerator, denominator)
+
+# Frequency response
+w, mag, phase = signal.bode(system)
+
+# Plot the magnitude response
+plt.figure()
+plt.semilogx(w / (2 * np.pi), mag)  # Convert from rad/s to Hz
+plt.title('Frequency Response (Magnitude)')
+plt.xlabel('Frequency [Hz]')
+plt.ylabel('Magnitude [dB]')
+plt.grid(which='both', axis='both')
+
+# Plot the phase response
+plt.figure()
+plt.semilogx(w / (2 * np.pi), phase)  # Convert from rad/s to Hz
+plt.title('Frequency Response (Phase)')
+plt.xlabel('Frequency [Hz]')
+plt.ylabel('Phase [degrees]')
+plt.grid(which='both', axis='both')
+
+plt.show()

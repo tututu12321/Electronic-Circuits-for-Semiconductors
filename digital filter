@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# 伝達関数の係数定義
+def bode_plot(num, den, label):
+    # 周波数応答を取得
+    w, h = signal.freqz(num, den, worN=8000)
+    w = w / np.pi  # 正規化周波数に変換 (0～1)
+
+    # 振幅特性 (dB)
+    plt.subplot(2, 1, 1)
+    plt.plot(w, 20 * np.log10(abs(h)), label=label)
+    plt.title('Bode Plot')
+    plt.ylabel('Magnitude [dB]')
+    plt.grid(True)
+
+    # 位相特性 (度)
+    plt.subplot(2, 1, 2)
+    angles = np.unwrap(np.angle(h))
+    plt.plot(w, np.degrees(angles), label=label)
+    plt.ylabel('Phase [degrees]')
+    plt.xlabel('Normalized Frequency (×π rad/sample)')
+    plt.grid(True)
+
+# 積分システム H(z) = 1 / (1 - z^(-1))
+num_integrator = [1]  # 分子
+den_integrator = [1, -1]  # 分母
+
+# 微分システム H(z) = 1 - z^(-1)
+num_differentiator = [1, -1]  # 分子
+den_differentiator = [1]  # 分母
+
+# 一次遅れシステム H(z) = 1 / (1 - a*z^(-1)), ここで a = 0.5 と仮定
+a = 0.5
+num_delay = [1]  # 分子
+den_delay = [1, -a]  # 分母
+
+# プロットの準備
+plt.figure(figsize=(10, 8))
+
+# 各システムのボード線図をプロット
+bode_plot(num_integrator, den_integrator, 'Integrator')
+bode_plot(num_differentiator, den_differentiator, 'Differentiator')
+bode_plot(num_delay, den_delay, f'First-Order Delay (a={a})')
+
+# 凡例を追加
+plt.subplot(2, 1, 1)
+plt.legend()
+
+plt.subplot(2, 1, 2)
+plt.legend()
+
+# グラフを表示
+plt.tight_layout()
+plt.show()

@@ -1,0 +1,60 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# パラメータの設定
+g_m1 = 2e-3  # g_m1 (例: 2mS)
+g_m6 = 5e-3  # g_m6 (例: 5mS)
+r_o2 = 20e3  # r_o2 (例: 20kΩ)
+r_o4 = 20e3  # r_o4 (例: 20kΩ)
+r_o6 = 30e3  # r_o6 (例: 30kΩ)
+r_o7 = 30e3  # r_o7 (例: 30kΩ)
+C_gs1 = 1e-12  # C_gs1 (例: 1pF)
+C_gs6 = 1e-12  # C_gs6 (例: 1pF)
+C_c = 2e-12  # C_c (例: 2pF)
+C_L = 5e-12  # C_L (例: 5pF)
+R_c = 1000  # Rcの値を設定してゼロ除算を回避
+
+# 伝達関数の定義に基づく計算
+K = g_m1 * (r_o2 * r_o4 / (r_o2 + r_o4)) * g_m6 * (r_o6 * r_o7 / (r_o6 + r_o7))
+
+# ポールとゼロの周波数の計算
+w_p1 = 1 / ((r_o2 * r_o4 / (r_o2 + r_o4)) * g_m6 * (r_o6 * r_o7 / (r_o6 + r_o7)) * C_c)
+w_p2 = (g_m6 * C_c) / (C_gs6 * C_L + C_c * (C_gs6 + C_L))
+
+# ゼロ点の計算、ゼロ除算を回避
+if g_m6 * R_c != 1:
+    w_z = - (g_m6 / C_c) * (1 / (1 - g_m6 * R_c))
+else:
+    w_z = -g_m6 / C_c  # ゼロ除算を避けるための単純な代替
+
+# ゲインを60dBに調整
+gain_dB = 60  # 60dB
+K = 10**(gain_dB / 20) * K  # 60dBにするためのKの調整
+
+# 伝達関数の分子と分母を設定
+num = [K, K * w_z]  # 分子: K(1 + s/w_z)
+den = np.convolve([1, w_p1], [1, w_p2])  # 分母: (1 + s/w_p1)(1 + s/w_p2)
+
+# ボード線図のプロット
+w, mag, phase = signal.bode((num, den))
+
+plt.figure(figsize=(10, 8))
+
+# 振幅特性 (dB)
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag)  # 周波数軸を対数スケールに
+plt.title('Bode Plot with 60dB Gain')
+plt.ylabel('Magnitude (dB)')
+plt.grid(True)
+
+# 位相特性 (度)
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase)  # 周波数軸を対数スケールに
+plt.ylabel('Phase (degrees)')
+plt.xlabel('Frequency (rad/s)')
+plt.grid(True)
+
+# グラフを表示
+plt.tight_layout()
+plt.show()

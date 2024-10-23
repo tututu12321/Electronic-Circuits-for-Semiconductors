@@ -1,0 +1,30 @@
+# 定数の定義
+Id = 200e-6  # ドレイン電流 (200 µA)
+Vov = 0.12  # オーバードライブ電圧 (V)
+Vds = 0.9  # ドレイン-ソース間電圧 (V)
+lambda_n = 0.2  # nチャネルMOSFETのλ (V^-1)
+lambda_p = 0.4  # pチャネルMOSFETのλ (V^-1)
+Cox = 2e-3  # 酸化膜容量 (F/m^2)
+mu_n = 200e-6  # nチャネルMOSFETの電子移動度 (200 cm^2/Vs)
+mu_p = 50e-6  # pチャネルMOSFETのホール移動度 (50 cm^2/Vs)
+
+# M1 のアスペクト比 (nMOS)
+W_over_L_1 = (2 * Id) / (mu_n * Cox * Vov**2 * (1 + lambda_n * (Vds - Vov)))
+
+# M2 のアスペクト比 (pMOS)
+W_over_L_2 = (2 * Id) / (mu_p * Cox * Vov**2 * (1 + lambda_p * (Vds - Vov)))
+
+# 結果の表示
+print(f"nMOS (M1) のアスペクト比 (W/L): {W_over_L_1:.2f}")
+print(f"pMOS (M2) のアスペクト比 (W/L): {W_over_L_2:.2f}")
+
+# サイズ計算 (W1, W2)
+L1 = 360e-9  # M1 のゲート長 (360 nm)
+L2 = 360e-9  # M2 のゲート長 (360 nm)
+
+W1 = W_over_L_1 * L1
+W2 = W_over_L_2 * L2
+
+# W1, W2 の表示
+print(f"M1 の幅 W1: {W1 * 1e6:.2f} µm")
+print(f"M2 の幅 W2: {W2 * 1e6:.2f} µm")

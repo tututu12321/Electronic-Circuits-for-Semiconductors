@@ -1,0 +1,57 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# 定数の設定
+Kn = 1e-5  # Kn の値（仮定）
+Kn_prime = 1e-5  # Kn' の値（仮定）
+
+# 変数の範囲を設定
+W_over_L = np.linspace(1, 100, 100)  # W/L の範囲
+Vov = np.linspace(0.1, 1.5, 100)  # Vov の範囲
+Ids = np.linspace(1e-6, 1e-3, 100)  # Ids の範囲
+
+# メッシュグリッドの作成（3次元プロット用）
+W_over_L_mesh, Vov_mesh = np.meshgrid(W_over_L, Vov)
+W_over_L_mesh2, Ids_mesh = np.meshgrid(W_over_L, Ids)
+Ids_mesh2, Vov_mesh2 = np.meshgrid(Ids, Vov)
+
+# 式 10: gm(W/L, Vov) = 2 * Kn * (W/L) * Vov
+gm_1 = 2 * Kn * W_over_L_mesh * Vov_mesh
+
+# 式 11: gm(W/L, Ids) = sqrt(Kn' * (W/L) * Ids)
+gm_2 = np.sqrt(Kn_prime * W_over_L_mesh2 * Ids_mesh)
+
+# 式 12: gm(Ids, Vov) = 2 * Ids / Vov
+gm_3 = (2 * Ids_mesh2) / Vov_mesh2
+
+# 3次元プロットの設定
+fig = plt.figure(figsize=(18, 6))
+
+# 式 10 のプロット
+ax1 = fig.add_subplot(131, projection='3d')
+ax1.plot_surface(W_over_L_mesh, Vov_mesh, gm_1, cmap='viridis')
+ax1.set_title(r'$g_m(W/L, V_{ov}) = 2 K_n \frac{W}{L} V_{ov}$')
+ax1.set_xlabel(r'$W/L$')
+ax1.set_ylabel(r'$V_{ov}$')
+ax1.set_zlabel(r'$g_m$')
+
+# 式 11 のプロット
+ax2 = fig.add_subplot(132, projection='3d')
+ax2.plot_surface(W_over_L_mesh2, Ids_mesh, gm_2, cmap='plasma')
+ax2.set_title(r'$g_m(W/L, I_{ds}) = \sqrt{K_n^\prime \frac{W}{L} I_{ds}}$')
+ax2.set_xlabel(r'$W/L$')
+ax2.set_ylabel(r'$I_{ds}$')
+ax2.set_zlabel(r'$g_m$')
+
+# 式 12 のプロット
+ax3 = fig.add_subplot(133, projection='3d')
+ax3.plot_surface(Ids_mesh2, Vov_mesh2, gm_3, cmap='inferno')
+ax3.set_title(r'$g_m(I_{ds}, V_{ov}) = \frac{2 I_{ds}}{V_{ov}}$')
+ax3.set_xlabel(r'$I_{ds}$')
+ax3.set_ylabel(r'$V_{ov}$')
+ax3.set_zlabel(r'$g_m$')
+
+# グラフの表示
+plt.tight_layout()
+plt.show()

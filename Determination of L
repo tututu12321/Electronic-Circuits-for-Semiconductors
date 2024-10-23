@@ -1,0 +1,47 @@
+import numpy as np
+
+# 必要な定数やパラメータの定義
+Cox = 3.45e-8  # 酸化膜容量 (F/cm^2)
+L = 180e-9  # チャネル長 (180 nm)
+W_over_L = 70  # W/L 比
+W = W_over_L * L  # チャネル幅
+Ids = 20e-6  # ドレイン電流 (20 μA)
+Veff = 0.1  # 有効ゲート電圧 (V)
+mu = 400e-4  # 電子移動度 (400 cm^2/Vs)
+Cp = 1e-12  # 寄生容量 (F) 仮定
+gds = 5.77e-6  # ドレインコンダクタンス (S)
+gm = 0.4e-3  # gm (0.4 mS)
+K_F = 1e-28  # 1/f ノイズ係数
+Kds = 1e-5  # ドレインコンダクタンス係数
+Vds = 0.5  # ドレイン-ソース間電圧 (V)
+phi_0 = 0.7  # MOSFETのしきい値電圧 (仮定)
+
+# 1. トランジスタ面積 S の計算
+S = L**2 * (W_over_L)
+
+# 2. ゲート容量 Cgs の計算
+Cgs = (2 / 3) * Cox * L * W
+
+# 3. カットオフ周波数 fT の計算
+fT = (2 * Ids) / (np.pi * ((2 / 3) * Cox * L * W + Cp) * Veff)
+
+# 4. VT ばらつき ΔVT の計算
+delta_VT = Veff / L * np.sqrt(mu / (2 * Cox * Ids))
+
+# 5. 電流源の電流ばらつき ΔIds / Ids の計算
+delta_Ids_over_Ids = (1 / L) * np.sqrt((2 * mu * Cox) / Ids)
+
+# 6. 1/f ノイズ Vnf の計算
+Vnf = (1 / L) * np.sqrt(K_F / (Cox * W * L) * (1 / fT))
+
+# 7. ドレインコンダクタンス gds の計算
+gds_calc = (Kds * Ids) / (2 * L * np.sqrt(Vds - Veff + phi_0))
+
+# 結果の表示
+print(f"トランジスタ面積 S: {S:.2e} m^2")
+print(f"ゲート容量 Cgs: {Cgs:.2e} F")
+print(f"カットオフ周波数 fT: {fT / 1e9:.2f} GHz")
+print(f"ΔVT (VTばらつき): {delta_VT:.2e} V")
+print(f"ΔIds / Ids (電流源の電流ばらつき): {delta_Ids_over_Ids:.2e}")
+print(f"1/f ノイズ Vnf: {Vnf:.2e} V")
+print(f"ドレインコンダクタンス gds: {gds_calc:.2e} S")

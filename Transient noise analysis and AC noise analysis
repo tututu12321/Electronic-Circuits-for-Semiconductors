@@ -1,0 +1,52 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# トランジェントノイズ解析（時間領域）
+def transient_noise_analysis(time, signal):
+    noise_amplitude = 0.05  # ノイズの振幅
+    noise = noise_amplitude * np.random.randn(len(time))  # ガウス分布ノイズを生成
+    noisy_signal = signal + noise  # 信号にノイズを加える
+    return noisy_signal
+
+# ACノイズ解析（周波数領域）
+def ac_noise_analysis(frequency, gain):
+    noise_amplitude = 0.02  # ノイズの振幅
+    noise = noise_amplitude * np.random.randn(len(frequency))  # ガウス分布ノイズを生成
+    noisy_gain = gain + noise  # ゲインにノイズを加える
+    return noisy_gain
+
+def main():
+    # トランジェントノイズ解析
+    time = np.linspace(0, 1, 1000)  # 時間軸
+    signal = np.sin(2 * np.pi * 10 * time)  # 10 Hz のサイン波
+    noisy_signal = transient_noise_analysis(time, signal)
+
+    # トランジェントノイズのプロット
+    plt.figure(figsize=(10, 4))
+    plt.plot(time, signal, label="Original Signal")
+    plt.plot(time, noisy_signal, label="Noisy Signal")
+    plt.title("Transient Noise Analysis")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Amplitude")
+    plt.legend()
+    plt.grid(True)
+
+    # ACノイズ解析
+    frequency = np.linspace(1, 1000, 1000)  # 周波数軸
+    gain = 20 * np.log10(np.abs(1 / (1 + 1j * frequency / 100)))  # 単純なフィルタ応答
+    noisy_gain = ac_noise_analysis(frequency, gain)
+
+    # ACノイズのプロット
+    plt.figure(figsize=(10, 4))
+    plt.plot(frequency, gain, label="Original Gain")
+    plt.plot(frequency, noisy_gain, label="Noisy Gain")
+    plt.title("AC Noise Analysis")
+    plt.xlabel("Frequency (Hz)")
+    plt.ylabel("Gain (dB)")
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()
+
+if __name__ == "__main__":
+    main()

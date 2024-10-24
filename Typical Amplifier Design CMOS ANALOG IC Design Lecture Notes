@@ -1,0 +1,60 @@
+import sympy as sp
+import numpy as np
+
+# 定数の定義（適宜値を変更可能）
+C_ox = 0.4e-15  # Oxide capacitance (F/um^2)
+mu_n = 500e-4  # Electron mobility (m^2/Vs)
+V_DSS = 0.35  # V_DSS value in volts
+g_m1_value = 94.25e-6  # g_m1 in S (Siemens)
+g_m3_value = 150e-6  # g_m3 in S (Siemens)
+I_5 = 30e-6  # Current I_5 in Amps
+I_6 = 94.25e-6  # Current I_6 in Amps
+R_D = 10e3  # Resistance R_D in Ohms
+V_th = 1.0  # Threshold voltage in volts
+
+# シンボル変数の定義
+W_L1, W_L2, W_L3, W_L4, W_L5, W_L6, W_L7, Vout_min, Av = sp.symbols('W_L1 W_L2 W_L3 W_L4 W_L5 W_L6 W_L7 Vout_min Av')
+
+# (W/L)_1 と (W/L)_2 の計算
+W_L1_expr = (g_m1_value ** 2) / (2 * mu_n * I_5)
+W_L2_expr = W_L1_expr  # W/L1 = W/L2なので同じ式
+
+# (W/L)_3 と (W/L)_4 の計算
+W_L3_expr = 15  # 事前に与えられた値として使用
+W_L4_expr = W_L3_expr  # W/L3 = W/L4なので同じ
+
+# (W/L)_5 の計算
+W_L5_expr = (2 * I_5) / ((50e-6) * (V_DSS ** 2))
+
+# (W/L)_6 の計算
+W_L6_expr = g_m1_value / (mu_n * 150e-6)
+
+# (W/L)_7 の計算
+W_L7_expr = 4.5 * (g_m1_value / 30e-6)
+
+# ゲイン Av の計算式
+Av_expr = (2 * g_m1_value * g_m3_value) / (30e-6 * (0.04 + 0.05) * (38e-6 * (0.04 + 0.05)))
+
+# 最小出力電圧 Vout_min の計算式
+Vout_min_expr = np.sqrt((2 * I_6) / (110e-6 * W_L7_expr))
+
+# 計算実行 (evalf() を削除)
+W_L1_value = W_L1_expr
+W_L5_value = W_L5_expr
+W_L6_value = W_L6_expr
+W_L7_value = W_L7_expr
+Av_value = Av_expr
+
+# ゲインをデシベル(dB)に変換
+Av_dB = 20 * np.log10(Av_value)
+
+Vout_min_value = Vout_min_expr
+
+# 結果を出力
+print(f"(W/L)_1 = (W/L)_2 = {W_L1_value:.4f}")
+print(f"(W/L)_5 = {W_L5_value:.4f}")
+print(f"(W/L)_6 = {W_L6_value:.4f}")
+print(f"(W/L)_7 = {W_L7_value:.4f}")
+print(f"Gain Av = {Av_value:.4f}")
+print(f"Gain Av (dB) = {Av_dB:.2f} dB")
+print(f"Vout_min = {Vout_min_value:.4f} V")

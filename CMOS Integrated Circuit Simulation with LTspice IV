@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Define constants
+C1 = 2e-12  # Capacitance C1 (F)
+C2 = 1e-12  # Capacitance C2 (F)
+gm1 = 1e-3  # Transconductance gm1 (S)
+gm7 = 2e-3  # Transconductance gm7 (S)
+gds2 = 5e-6  # Output conductance gds2 (S)
+gds4 = 5e-6  # Output conductance gds4 (S)
+gds6 = 5e-6  # Output conductance gds6 (S)
+gds7 = 5e-6  # Output conductance gds7 (S)
+Cc = 1e-12  # Compensation capacitance Cc (F)
+CL = 10e-12  # Load capacitance CL (F)
+
+# Calculate A0 (DC gain)
+A0 = (gm1 / (gds2 + gds4)) * (gm7 / (gds6 + gds7))
+
+# Calculate zero and poles
+omega_z = gm7 / Cc  # Zero frequency ωz
+omega_p1 = (gds2 + gds4) / ((gds2 + gds4) * (gds6 + gds7))  # First pole ωp1
+omega_p2 = gm7 / CL  # Second pole ωp2
+
+# Define the frequency range
+frequencies = np.logspace(3, 10, 1000)  # Frequency range from 1 kHz to 10 GHz
+s = 1j * 2 * np.pi * frequencies  # s = jω (complex frequency)
+
+# Calculate the loop gain L(s)
+L_s = (C2 / (C1 + C2)) * (A0 * omega_p1 * (1 - s / omega_z) / (s * (1 + s / omega_p2)))
+
+# Magnitude response (dB)
+magnitude = 20 * np.log10(np.abs(L_s))
+
+# Phase response (degrees)
+phase = np.angle(L_s, deg=True)
+
+# Plot the Bode plot
+plt.figure(figsize=(10, 8))
+
+# Plot the magnitude response
+plt.subplot(2, 1, 1)
+plt.semilogx(frequencies, magnitude)  # Frequency vs Magnitude (dB) plot
+plt.title('Bode Plot of Loop Gain $L(s)$')
+plt.ylabel('Magnitude [dB]')
+plt.grid(True)
+
+# Plot the phase response
+plt.subplot(2, 1, 2)
+plt.semilogx(frequencies, phase)  # Frequency vs Phase (degrees) plot
+plt.xlabel('Frequency [Hz]')
+plt.ylabel('Phase [degrees]')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()

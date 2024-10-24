@@ -1,0 +1,49 @@
+# 定数の定義
+V_plus_min = 4  # 最小電源電圧 (V)
+V_plus_max = 18  # 最大電源電圧 (V)
+Icc_min = 5e-3  # 最小消費電流 (A)
+Icc_max = 8e-3  # 最大消費電流 (A)
+Po_min = 250e-3  # 最小出力電力 (W)
+Po_typ = 325e-3  # 典型出力電力 (W)
+Po_max = 850e-3  # 最大出力電力 (W)
+Av_min = 24  # 最小電圧利得 (dB)
+Av_typ = 26  # 典型電圧利得 (dB)
+Av_max = 28  # 最大電圧利得 (dB)
+BW_min = 43  # 最小帯域幅 (dB)
+BW_typ = 46  # 典型帯域幅 (dB)
+BW_max = 49  # 最大帯域幅 (dB)
+THD_max = 0.1  # 最大高調波歪み率 (%)
+SVR_typ = 50  # 典型電源電圧除去比 (dB)
+Rin_typ = 50e3  # 典型入力抵抗 (kΩ)
+Ib_typ = 100e-9  # 典型入力バイアス電流 (A)
+
+# 計算式の例
+
+# 電圧利得の計算 (dBから倍数へ変換)
+def calculate_voltage_gain_db_to_ratio(Av_db):
+    return 10 ** (Av_db / 20)
+
+# 出力電力を消費電流から計算する例 (P = V * I)
+def calculate_output_power(V_plus, Icc):
+    return V_plus * Icc
+
+# 帯域幅の計算 (dB値からHz換算)
+def calculate_bandwidth(BW_db):
+    # この場合、dBで表された帯域幅を適切にHzに変換するためのモデルに基づいて修正が必要
+    return BW_db * 1e3  # 仮にdBがそのままkHzとして扱う
+
+# 例として消費電流と電源電圧から出力電力を計算
+V_plus_example = 6  # 電源電圧の例 (V)
+Icc_example = 7e-3  # 消費電流の例 (A)
+output_power = calculate_output_power(V_plus_example, Icc_example)
+print(f"出力電力: {output_power:.3f} W")
+
+# 電圧利得をdBから倍数へ変換
+Av_example = 26  # 電圧利得の例 (dB)
+voltage_gain = calculate_voltage_gain_db_to_ratio(Av_example)
+print(f"電圧利得: {voltage_gain:.2f} 倍")
+
+# 帯域幅の計算
+BW_example = 46  # 帯域幅の例 (dB)
+bandwidth_hz = calculate_bandwidth(BW_example)
+print(f"帯域幅: {bandwidth_hz} kHz")

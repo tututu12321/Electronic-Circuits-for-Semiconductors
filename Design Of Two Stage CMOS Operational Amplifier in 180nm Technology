@@ -1,0 +1,53 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Define constants for the CMOS amplifier
+gm1 = 1e-3  # Transconductance of first stage (S)
+gm2 = 2e-3  # Transconductance of second stage (S)
+R1 = 10e3   # Resistance of first stage (ohms)
+R2 = 20e3   # Resistance of second stage (ohms)
+Cc = 2e-12  # Compensation capacitance (F)
+C1 = 3e-12  # Capacitance C1 (F)
+C2 = 4e-12  # Capacitance C2 (F)
+CL = 10e-12 # Load capacitance (F)
+
+# Calculate DC gain
+Adc = gm1 * R1 * gm2 * R2
+
+# Calculate zero z1
+z1 = gm2 / Cc
+
+# Calculate poles p1 and p2
+p1 = 1 / (Cc * gm2 * R1 * R2)
+p2 = gm2 * Cc / (C1 * C2 + C1 * CL + C2 * CL)
+
+# Define the transfer function
+num = [Adc, -Adc / z1]  # Numerator for the transfer function
+den = [1 / (p1 * p2), (1 / p1 + 1 / p2), 1]  # Denominator
+
+# Create the transfer function system
+system = signal.TransferFunction(num, den)
+
+# Generate the Bode plot
+w, mag, phase = signal.bode(system)
+
+# Plot magnitude and phase response
+plt.figure(figsize=(10, 8))
+
+# Magnitude plot (dB scale)
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag)
+plt.title('CMOS Two-Stage Amplifier Bode Plot')
+plt.ylabel('Magnitude [dB]')
+plt.grid(True)
+
+# Phase plot
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase)
+plt.ylabel('Phase [degrees]')
+plt.xlabel('Frequency [rad/s]')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()

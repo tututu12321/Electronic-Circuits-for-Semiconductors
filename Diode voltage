@@ -1,0 +1,25 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の定義
+q = 1.602e-19  # 電子の電荷 (クーロン)
+k = 1.38e-23  # ボルツマン定数 (J/K)
+T = 300  # 温度 (ケルビン)
+I_S = 1e-12  # 飽和電流 (A)
+
+# ダイオード電圧 V_D の範囲を定義
+V_D = np.linspace(0, 0.7, 100)  # 0V から 0.7V までの 100 点を生成
+
+# ショットキー電流 I_D の計算
+I_D = I_S * (np.exp(q * V_D / (k * T)) - 1)
+
+# グラフのプロット
+plt.figure(figsize=(8, 6))
+plt.plot(V_D, I_D, label=r'$I_D = I_S \left(e^{\frac{q V_D}{k T}} - 1 \right)$')
+plt.xlabel('Diode Voltage $V_D$ [V]')  # x軸のラベル (英語)
+plt.ylabel('Diode Current $I_D$ [A]')  # y軸のラベル (英語)
+plt.title('Schottky Diode Current $I_D$ vs $V_D$ Characteristic')  # グラフのタイトル (英語)
+plt.grid(True)
+plt.legend()
+plt.yscale('log')  # 電流値の範囲が大きいため、対数スケールに設定
+plt.show()

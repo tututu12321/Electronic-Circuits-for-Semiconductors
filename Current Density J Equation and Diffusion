@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の定義
+q = 1.6e-19  # 電荷 (クーロン)
+k = 1.38e-23  # ボルツマン定数 (J/K)
+T = 300  # 温度 (ケルビン)
+D = 0.01  # 拡散係数 (cm^2/sec) の仮の値
+mu_n = 1350  # 電子の移動度 (cm^2/(V⋅sec))
+mu_p = 480  # ホールの移動度 (cm^2/(V⋅sec))
+E = 1.0  # 電場 (V/cm) の仮の値
+n = 1e16  # キャリア濃度 (個/m^3) の仮の値
+
+# 電流密度 J の計算
+def current_density(E, n, mu, q):
+    return mu * E * n * q
+
+# 拡散による電流 J の計算
+def diffusion_current(D, n_gradient):
+    return -D * n_gradient
+
+# ショットキー電流 I の計算
+def schottky_current(I_s, V_D, q, T):
+    return I_s * (np.exp(q * V_D / (k * T)) - 1)
+
+# 電流密度 J の例 (電子の移動度を使う)
+J_n = current_density(E, n, mu_n, q)
+print(f"電流密度 J (電子) = {J_n:.4e} A/cm^2")
+
+# 拡散による電流 J の例
+n_gradient = 1e21  # キャリア濃度の勾配 (仮の値)
+J_diff = diffusion_current(D, n_gradient)
+print(f"拡散による電流 J = {J_diff:.4e} A/cm^2")
+
+# ショットキー電流 I の例
+I_s = 1e-12  # 飽和電流 (仮の値)
+V_D = 0.7  # ダイオード電圧 (V)
+I = schottky_current(I_s, V_D, q, T)
+print(f"ショットキー電流 I = {I:.4e} A")

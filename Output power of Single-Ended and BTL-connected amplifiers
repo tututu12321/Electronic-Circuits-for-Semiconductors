@@ -1,0 +1,27 @@
+# 必要なライブラリのインポート
+import numpy as np
+
+# 定数の定義
+Vcc = 10.0  # 電源電圧 (V)
+RL_single = 4.0  # Single-Ended アンプの負荷抵抗 (Ω)
+RL_btl = 8.0  # BTL接続 アンプの負荷抵抗 (Ω)
+
+# Single-Ended アンプの最大出力電圧実効値
+Vout_single = Vcc / np.sqrt(2)  # Vout = Vcc / √2
+
+# Single-Ended アンプの出力電力 (Pout_single)
+Pout_single = (Vout_single ** 2) / RL_single  # Pout = Vout^2 / RL
+
+# BTL接続アンプの最大出力電圧実効値 (Vout_btl)
+Vout_btl = 2 * (Vcc / np.sqrt(2))  # Vout_btl = 2 * Vout_single
+
+# BTL接続アンプの出力電力 (Pout_btl)
+Pout_btl = (Vout_btl ** 2) / RL_btl  # Pout = Vout^2 / RL
+
+# クリップ時の最大出力電力 (Pout_clip)
+Pout_clip = (Vcc ** 2) / RL_btl  # Pout_clip = Vcc^2 / RL
+
+# 結果の表示
+print(f"Single-Ended アンプの最大出力電力: {Pout_single:.2f} W")
+print(f"BTL接続 アンプの最大出力電力: {Pout_btl:.2f} W")
+print(f"BTL接続 アンプのクリップ時の最大出力電力: {Pout_clip:.2f} W")

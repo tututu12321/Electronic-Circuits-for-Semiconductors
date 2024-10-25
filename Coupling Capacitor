@@ -1,0 +1,20 @@
+import numpy as np
+
+# 定数
+R1 = 89e3  # R1 = 89kΩ
+R2 = 11e3  # R2 = 11kΩ
+Rin = 50e3  # トランジスタの入力抵抗 Rin = 50kΩ
+fc = 2  # カットオフ周波数 (Hz)
+
+# 並列抵抗の計算
+R_total = 1 / (1 / R1 + 1 / R2 + 1 / Rin)
+
+# カップリングキャパシタの計算式: C = 1 / (2 * pi * R * fc)
+C = 1 / (2 * np.pi * R_total * fc)
+
+# 結果をマイクロファラド（μF）で表示
+C_microfarads = C * 1e6
+
+# 結果の表示
+print(f"Total parallel resistance (R_total): {R_total / 1e3:.2f} kΩ")
+print(f"Coupling capacitor value (C): {C_microfarads:.2f} μF")

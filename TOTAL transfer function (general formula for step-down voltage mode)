@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the constants
+Vin = 1.0    # Input voltage (example)
+Vramp = 1.0  # Ramp voltage (example)
+Rz = 1.0     # Z feedback resistance
+R1 = 1.0     # Reference resistance
+A = 1.0      # Amplification factor
+Zb = 1.0     # Impedance Zb
+Resr = 0.01  # Equivalent series resistance (example value)
+R = 1.0      # Resistance
+C = 1e-6     # Capacitance
+L = 1e-3     # Inductance
+omega = np.logspace(0, 6, 500)  # Frequency range in rad/s
+
+# Calculate the transfer function G(omega)
+numerator = (Rz / R1) * A * (1 + 1j * omega * Resr * C)
+denominator = (1 + Rz / Zb * A) * (1 - omega**2 * R * C + Resr / R) + \
+              1j * omega * ((Resr * C + L / R) * omega + L * C)
+
+G = (-Vin / Vramp) * numerator / denominator
+
+# Bode plot
+plt.figure(figsize=(12, 6))
+
+# Magnitude plot
+plt.subplot(2, 1, 1)
+plt.semilogx(omega, 20 * np.log10(np.abs(G)), label='|G(jω)|', color='blue')
+plt.title('Bode Plot - Magnitude and Phase of G(jω)')
+plt.xlabel('Frequency (rad/s)')
+plt.ylabel('Magnitude (dB)')
+plt.grid(True)
+plt.legend()
+
+# Phase plot
+plt.subplot(2, 1, 2)
+plt.semilogx(omega, np.angle(G, deg=True), label='∠G(jω)', color='green')
+plt.xlabel('Frequency (rad/s)')
+plt.ylabel('Phase (degrees)')
+plt.grid(True)
+plt.legend()
+
+# Display the plot
+plt.tight_layout()
+plt.show()

@@ -1,0 +1,19 @@
+# 定数の定義
+Vcc = 5.0  # 電源電圧 (V)
+VIH = 3.5  # Hレベルの入力閾値 (V)
+VIL = 1.5  # Lレベルの入力閾値 (V)
+
+I_HiZ = 6e-6  # Hi-Z時の最大電流 (A), IOHZ(5uA) + II(1uA)
+I_L_max = 16e-3  # Lレベル時の最大電流 (A), IOH = 16mA
+
+# プルアップ抵抗の上限値を計算
+# 5V - (I_HiZ * Rpull-up) > VIH
+Rpull_up_max = (Vcc - VIH) / I_HiZ
+
+# プルアップ抵抗の下限値を計算
+# Vcc / Rpull-up < I_L_max
+Rpull_up_min = Vcc / I_L_max
+
+# 結果の表示
+print(f"プルアップ抵抗の上限値: {Rpull_up_max:.0f} Ω")
+print(f"プルアップ抵抗の下限値: {Rpull_up_min:.0f} Ω")

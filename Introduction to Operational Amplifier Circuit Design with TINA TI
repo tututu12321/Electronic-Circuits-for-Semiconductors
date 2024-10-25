@@ -1,0 +1,46 @@
+# 定数の定義
+C2 = 30  # 位相補償容量 [pF]
+SR_plus_ds = 0.67  # 正方向スルーレート (データシート) [V/µs]
+SR_plus_model = 0.69  # 正方向スルーレート (BOYLEモデル) [V/µs]
+SR_minus_ds = 0.62  # 逆方向スルーレート (データシート) [V/µs]
+SR_minus_model = 0.61  # 逆方向スルーレート (BOYLEモデル) [V/µs]
+Ib_ds = 20e-9  # 入力バイアス電流 [nA] (データシート)
+Ib_model = 20e-9  # 入力バイアス電流 [nA] (BOYLEモデル)
+Ios_ds = 200e-9  # 入力オフセット電流 [nA] (データシート)
+Ios_model = 200e-9  # 入力オフセット電流 [nA] (BOYLEモデル)
+Vos_ds = 1e-3  # 入力オフセット電圧 [mV] (データシート)
+Vos_model = 1e-3  # 入力オフセット電圧 [mV] (BOYLEモデル)
+Av_ds = 200e3  # 差動増幅率 [V/V] (データシート)
+Av_model = 192e3  # 差動増幅率 [V/V] (BOYLEモデル)
+fAv_ds = 100e3  # 利得帯域幅積 [kHz] (データシート)
+fAv_model = 97.6e3  # 利得帯域幅積 [kHz] (BOYLEモデル)
+CMRR_ds = 90  # 同相除去比 [dB] (データシート)
+CMRR_model = 90  # 同相除去比 [dB] (BOYLEモデル)
+Rout_ds = 75  # 出力抵抗 [Ω] (データシート)
+Rout_model = 75  # 出力抵抗 [Ω] (BOYLEモデル)
+Isc_ds = 25  # 負荷電流 [mA] (データシート)
+Isc_model = 25.2  # 負荷電流 [mA] (BOYLEモデル)
+In_ds = 0.01  # 入力換算雑音電流 [pA/√Hz] (データシート)
+In_model = 0.01  # 入力換算雑音電流 [pA/√Hz] (BOYLEモデル)
+Vn_ds = 10  # 入力換算雑音電圧 [µV/√Hz] (データシート)
+Vn_model = 9.88  # 入力換算雑音電圧 [µV/√Hz] (BOYLEモデル)
+Vplus_ds = 15  # 供給電圧 [V] (データシート)
+Vminus_ds = -15  # 供給電圧 [V] (データシート)
+Vplus_model = 13.5  # 供給電圧 [V] (BOYLEモデル)
+Vminus_model = -13.5  # 供給電圧 [V] (BOYLEモデル)
+Pd_ds = 85  # 消費電力 [mW] (データシート)
+Pd_model = 49.7  # 消費電力 [mW] (BOYLEモデル)
+
+# 比較のための関数例
+def compare_parameter(param_name, ds_value, model_value, unit):
+    print(f"{param_name}:")
+    print(f"  データシート値: {ds_value} {unit}")
+    print(f"  モデル値: {model_value} {unit}")
+    print(f"  差異: {abs(ds_value - model_value)} {unit}\n")
+
+# パラメータの比較
+compare_parameter("正方向スルーレート", SR_plus_ds, SR_plus_model, "V/µs")
+compare_parameter("逆方向スルーレート", SR_minus_ds, SR_minus_model, "V/µs")
+compare_parameter("差動増幅率", Av_ds, Av_model, "V/V")
+compare_parameter("利得帯域幅積", fAv_ds, fAv_model, "kHz")
+compare_parameter("消費電力", Pd_ds, Pd_model, "mW")

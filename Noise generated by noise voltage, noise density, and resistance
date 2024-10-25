@@ -1,0 +1,35 @@
+import numpy as np
+
+# 定数の定義
+R_resistance = 10e6  # 抵抗値 (Ω)
+frequency_range_min = 20  # 周波数範囲の下限 (Hz)
+frequency_range_max = 20e3  # 周波数範囲の上限 (Hz)
+
+# 抵抗が発生する雑音電圧の計算 (nV)
+def noise_voltage(resistance, freq_min, freq_max):
+    return 0.13 * np.sqrt(resistance * (freq_max - freq_min))  # 雑音電圧 (nV)
+
+# 抵抗が発生する雑音電圧密度の計算 (nV/√Hz)
+def noise_voltage_density(resistance):
+    return 0.13 * np.sqrt(resistance)  # 雑音電圧密度 (nV/√Hz)
+
+# 抵抗が発生する雑音電流の計算 (nA)
+def noise_current(resistance, freq_min, freq_max):
+    return 0.13 * np.sqrt((freq_max - freq_min) / resistance)  # 雑音電流 (nA)
+
+# 抵抗が発生する雑音電流密度の計算 (nA/√Hz)
+def noise_current_density(resistance):
+    return 0.13 * np.sqrt(1 / resistance)  # 雑音電流密度 (nA/√Hz)
+
+# 計算実行
+voltage_noise = noise_voltage(R_resistance, frequency_range_min, frequency_range_max)
+voltage_noise_density = noise_voltage_density(R_resistance)
+current_noise = noise_current(R_resistance, frequency_range_min, frequency_range_max)
+current_noise_density = noise_current_density(R_resistance)
+
+# 結果の表示
+print(f"抵抗 {R_resistance/1e6} MΩ の場合:")
+print(f"雑音電圧: {voltage_noise:.2f} nV")
+print(f"雑音電圧密度: {voltage_noise_density:.2f} nV/√Hz")
+print(f"雑音電流: {current_noise:.6f} nA")
+print(f"雑音電流密度: {current_noise_density:.6f} nA/√Hz")

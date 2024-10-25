@@ -1,0 +1,42 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Sampling settings and time axis
+sampling_rate = 10000  # Sampling frequency (Hz)
+T = 1.0 / 50  # Period of the square wave (50Hz)
+t = np.linspace(0, 0.1, int(0.1 * sampling_rate), endpoint=False)  # Time axis (0.1 seconds)
+
+# Generate a square wave (Amplitude ±1, 50Hz)
+square_wave = 1.0 * np.sign(np.sin(2 * np.pi * 50 * t))
+
+# Fourier Transform
+N = len(t)  # Number of data points
+yf = np.fft.fft(square_wave)  # Perform FFT
+xf = np.fft.fftfreq(N, 1 / sampling_rate)  # Frequency axis
+
+# Normalize the amplitude spectrum (divide by the max value)
+norm_yf = np.abs(yf[:N // 2]) / np.max(np.abs(yf[:N // 2]))  # Normalization
+norm_yf_db = 20 * np.log10(norm_yf)  # Convert to dB scale
+
+# Plot settings
+plt.figure(figsize=(10, 6))
+
+# Plot the square wave
+plt.subplot(2, 1, 1)
+plt.plot(t, square_wave)
+plt.title('50Hz Square Wave')
+plt.xlabel('Time (seconds)')
+plt.ylabel('Amplitude')
+plt.grid(True)
+
+# Plot the Fourier transform result (dB scale)
+plt.subplot(2, 1, 2)
+plt.plot(xf[:N // 2], norm_yf_db)
+plt.title('Fourier Analysis Result (Spectrum)')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Magnitude (dB)')
+plt.grid(True)
+plt.tight_layout()
+
+# Show the plot
+plt.show()

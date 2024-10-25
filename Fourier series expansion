@@ -1,0 +1,60 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# General settings
+theta = np.linspace(0, 2 * np.pi, 1000)  # theta from 0 to 2*pi
+Vm = 1.0  # Amplitude
+
+# Square wave (2-level) Fourier series
+def square_wave(n_terms, Vm, theta):
+    v_square = np.zeros_like(theta)
+    for n in range(1, n_terms+1, 2):  # Only odd harmonics
+        v_square += (4 * Vm / (np.pi * n)) * np.sin(n * theta)
+    return v_square
+
+# Sawtooth wave Fourier series
+def sawtooth_wave(n_terms, Vm, theta):
+    v_saw = np.zeros_like(theta)
+    for n in range(1, n_terms+1):
+        v_saw += (2 * Vm / (np.pi * n)) * ((-1)**(n+1)) * np.sin(n * theta)
+    return v_saw
+
+# Triangle wave Fourier series
+def triangle_wave(n_terms, Vm, theta):
+    v_triangle = np.zeros_like(theta)
+    for n in range(1, n_terms+1, 2):  # Only odd harmonics
+        v_triangle += (8 * Vm / (np.pi**2 * n**2)) * ((-1)**((n-1)//2)) * np.sin(n * theta)
+    return v_triangle
+
+# Number of terms for the Fourier series
+n_terms = 10
+
+# Generate the waveforms
+v_square = square_wave(n_terms, Vm, theta)
+v_saw = sawtooth_wave(n_terms, Vm, theta)
+v_triangle = triangle_wave(n_terms, Vm, theta)
+
+# Plotting the results
+plt.figure(figsize=(10, 8))
+
+# Plot square wave
+plt.subplot(3, 1, 1)
+plt.plot(theta, v_square, label='Square Wave (2-level)')
+plt.title('Square Wave (2-level)')
+plt.grid(True)
+
+# Plot sawtooth wave
+plt.subplot(3, 1, 2)
+plt.plot(theta, v_saw, label='Sawtooth Wave', color='orange')
+plt.title('Sawtooth Wave')
+plt.grid(True)
+
+# Plot triangle wave
+plt.subplot(3, 1, 3)
+plt.plot(theta, v_triangle, label='Triangle Wave', color='green')
+plt.title('Triangle Wave')
+plt.grid(True)
+
+# Show the plots
+plt.tight_layout()
+plt.show()

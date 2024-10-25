@@ -1,0 +1,74 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の定義
+CL = 10e-9  # 負荷容量 (F)
+Cp = 1e-12  # 寄生容量 (F)
+Rd = 1e3    # 負荷抵抗 (Ω)
+ro = 50     # 出力抵抗 (Ω)
+A0 = 1000   # DCゲイン
+
+# 周波数範囲の設定
+frequencies = np.logspace(1, 8, 1000)  # 10Hzから100MHzまでの範囲
+omega = 2 * np.pi * frequencies        # 角周波数 ω = 2πf
+
+# s=jωの定義
+s = 1j * omega
+
+# --- 伝達関数の計算 ---
+# 分子と分母の定義
+numerator = 1
+denominator = (A0 + ro) * (CL + Cp * (s * CL + 1)) / (s * CL * Rd + 1) * (s + 1)
+
+# 伝達関数 H の計算
+H = numerator / denominator
+
+# 振幅特性（dBスケール）
+magnitude_H = 20 * np.log10(np.abs(H))
+
+# 位相特性（度スケール）
+phase_H = np.angle(H, deg=True)
+
+# --- インピーダンス Z の計算 ---
+# インピーダンス Z の定義
+Z = (Rd + 1/(s * CL)) / (1 + s * Cp * (Rd + 1/(s * CL)))
+
+# 振幅特性（dBスケール）
+magnitude_Z = 20 * np.log10(np.abs(Z))
+
+# 位相特性（度スケール）
+phase_Z = np.angle(Z, deg=True)
+
+# --- ボード線図のプロット ---
+plt.figure(figsize=(12, 10))
+
+# 伝達関数 H の振幅特性のプロット
+plt.subplot(2, 2, 1)
+plt.semilogx(frequencies, magnitude_H)
+plt.title('Bode Plot of Transfer Function H')
+plt.ylabel('Magnitude (dB)')
+plt.grid(True)
+
+# 伝達関数 H の位相特性のプロット
+plt.subplot(2, 2, 3)
+plt.semilogx(frequencies, phase_H)
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Phase (degrees)')
+plt.grid(True)
+
+# インピーダンス Z の振幅特性のプロット
+plt.subplot(2, 2, 2)
+plt.semilogx(frequencies, magnitude_Z)
+plt.title('Bode Plot of Impedance Z')
+plt.ylabel('Magnitude (dB)')
+plt.grid(True)
+
+# インピーダンス Z の位相特性のプロット
+plt.subplot(2, 2, 4)
+plt.semilogx(frequencies, phase_Z)
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Phase (degrees)')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()

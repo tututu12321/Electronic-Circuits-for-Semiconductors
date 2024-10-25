@@ -1,0 +1,43 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Constants
+tau = 1  # Time constant (τ)
+T = 2    # Period (T)
+s = np.logspace(-2, 2, 500)  # Frequency range for Bode plot (500 points)
+
+# Laplace transform transfer functions F1(s), F2(s), and F(s)
+F1_s = (1 / s) * (1 - np.exp(-tau * s)) / (1 - np.exp(-T * s))
+F2_s = (1 / s) * (1 - np.exp(-tau * s)) / (1 + np.exp(-T * s))
+F_s = (1 / s) * (1 - np.exp(-tau * s))
+
+# Create Bode plot (Magnitude and Phase)
+
+# Plot for magnitude (dB)
+plt.figure(figsize=(12, 6))
+
+plt.subplot(2, 1, 1)
+plt.semilogx(s, 20 * np.log10(np.abs(F1_s)), label='|F1(s)|', color='blue')
+plt.semilogx(s, 20 * np.log10(np.abs(F2_s)), label='|F2(s)|', color='red')
+plt.semilogx(s, 20 * np.log10(np.abs(F_s)), label='|F(s)|', color='green')
+plt.title('Bode Plot - Magnitude Response')
+plt.xlabel('Frequency (rad/s)')
+plt.ylabel('Magnitude (dB)')
+plt.grid(True)
+plt.legend()
+
+# Plot for phase (degrees)
+plt.subplot(2, 1, 2)
+plt.semilogx(s, np.angle(F1_s, deg=True), label='∠F1(s)', color='blue')
+plt.semilogx(s, np.angle(F2_s, deg=True), label='∠F2(s)', color='red')
+plt.semilogx(s, np.angle(F_s, deg=True), label='∠F(s)', color='green')
+plt.title('Bode Plot - Phase Response')
+plt.xlabel('Frequency (rad/s)')
+plt.ylabel('Phase (degrees)')
+plt.grid(True)
+plt.legend()
+
+# Show plot
+plt.tight_layout()
+plt.show()

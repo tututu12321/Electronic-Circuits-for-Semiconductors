@@ -1,0 +1,26 @@
+import numpy as np
+
+# 定数の定義
+I_transient = 50e-3  # 過渡電流 (A)
+t_transient = 50e-9  # 過渡電流が流れる時間 (s)
+V_supply = 20  # 電源電圧 (V)
+
+# 必要な電荷を計算 (Q = I * t)
+Q_needed = I_transient * t_transient  # クーロン (Coulombs)
+
+# 必要なコンデンサの容量を計算 (C = Q / V)
+C_needed = Q_needed / V_supply  # ファラド (Farads)
+C_microfarads = C_needed * 1e6  # μFに変換
+
+# 電流値と時間が変わった場合の電圧降下 (例: I=50mA, t=1us, C=0.1uFの場合の電圧降下)
+I_new = 50e-3  # 新しい過渡電流値 (A)
+t_new = 1e-6  # 新しい過渡時間 (s)
+C_new = 0.1e-6  # 新しいコンデンサ容量 (F)
+
+# 電圧降下の計算 (V = Q / C)
+Q_new = I_new * t_new  # 新しい電荷 (C)
+V_drop = Q_new / C_new  # 電圧降下 (V)
+
+# 結果の表示
+print(f"必要なコンデンサの容量: {C_microfarads:.3f} μF")
+print(f"過渡電流が流れる時間 {t_new:.0e} 秒、電流 {I_new * 1e3:.0f} mA の場合、電圧降下は {V_drop * 1e3:.2f} mV")

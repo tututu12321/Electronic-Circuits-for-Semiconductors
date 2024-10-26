@@ -1,0 +1,52 @@
+import numpy as np
+from scipy.linalg import lu_factor, lu_solve
+
+# 非線形方程式の定義
+def functions(variables):
+    x, y = variables
+    return np.array([x**2 + y**2 - 4, np.sin(x) - y])
+
+# ヤコビアン行列を差分法で数値的に計算
+def jacobian(variables, h=1e-6):
+    n = len(variables)
+    jacobian_matrix = np.zeros((n, n))
+    f0 = functions(variables)
+    
+    for i in range(n):
+        perturbed = np.copy(variables)
+        perturbed[i] += h
+        f1 = functions(perturbed)
+        jacobian_matrix[:, i] = (f1 - f0) / h  # 差分法でヤコビアンの列を計算
+    
+    return jacobian_matrix
+
+# ニュートン・ラフソン法
+def newton_raphson(initial_guess, tol=1e-6, max_iter=100):
+    guess = np.array(initial_guess, dtype=float)
+    
+    for iteration in range(max_iter):
+        # 関数値とヤコビアン行列を計算
+        f_val = functions(guess)
+        jacobian_matrix = jacobian(guess)
+        
+        # LU分解を使用して修正量を計算
+        lu_piv = lu_factor(jacobian_matrix)
+        delta = lu_solve(lu_piv, -f_val)
+        
+        # 推定値の更新
+        guess += delta
+        
+        # 収束判定
+        if np.linalg.norm(delta) < tol:
+            print(f"Converged in {iteration + 1} iterations")
+            return guess
+    
+    print("Did not converge")
+    return None
+
+# 初期推定値
+initial_guess = [1.0, 1.0]
+
+# ニュートン・ラフソン法で解を求める
+solution = newton_raphson(initial_guess)
+print("Solution:", solution)

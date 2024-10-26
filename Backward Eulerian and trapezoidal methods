@@ -1,0 +1,48 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の設定
+R = 1e3  # 抵抗値 (1kΩ)
+C = 1e-6  # 容量 (1µF)
+V_in = 10  # 入力電圧 (10V)
+dt = 1e-5  # 時間ステップ (10µs)
+t_end = 0.01  # 解析の終了時間 (10ms)
+num_steps = int(t_end / dt)  # ステップ数
+
+# 初期化
+time = np.linspace(0, t_end, num_steps)
+V_out = np.zeros(num_steps)  # コンデンサの電圧の初期値は0V
+
+# 過渡解析（バックワードオイラー法）
+for i in range(1, num_steps):
+    # V_out[n+1] = V_out[n] + (dt / (R * C)) * (V_in - V_out[n+1])
+    # この式をV_out[n+1]について解くと:
+    V_out[i] = (V_out[i - 1] + dt * V_in / (R * C)) / (1 + dt / (R * C))
+
+# プロット
+plt.figure(figsize=(8, 4))
+plt.plot(time, V_out, label='V_out (Backward Euler)', color='blue')
+plt.xlabel('Time [s]')
+plt.ylabel('Voltage [V]')
+plt.title('RC Circuit Transient Analysis - Backward Euler')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# トラペゾイダル法による解析
+V_out_trap = np.zeros(num_steps)
+for i in range(1, num_steps):
+    # Trapezoidal method:
+    # V_out[n+1] = V_out[n] + 0.5 * dt / (R * C) * (V_in - V_out[n] + V_in - V_out[n+1])
+    # 解くと:
+    V_out_trap[i] = (V_out_trap[i - 1] + 0.5 * dt * (V_in + V_in) / (R * C)) / (1 + 0.5 * dt / (R * C))
+
+# プロット
+plt.figure(figsize=(8, 4))
+plt.plot(time, V_out_trap, label='V_out (Trapezoidal)', color='red')
+plt.xlabel('Time [s]')
+plt.ylabel('Voltage [V]')
+plt.title('RC Circuit Transient Analysis - Trapezoidal Method')
+plt.grid(True)
+plt.legend()
+plt.show()

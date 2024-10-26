@@ -1,0 +1,45 @@
+import numpy as np
+
+# 定義：各成分の振幅
+I1_amp = 10
+I2_amp = 5
+I3_amp = 3
+V1_amp = 10
+V2_amp = 5
+I4_amp = 4
+I5_amp = 1
+
+# 16.4: ひずみ波交流電流の実効値とひずみ率の計算
+# 実効値は各成分の二乗平均平方根 (RMS) を求める
+I_rms = np.sqrt(I1_amp**2 + I2_amp**2 + I3_amp**2)
+I1_rms = I1_amp / np.sqrt(2)
+THD_I = np.sqrt((I2_amp**2 + I3_amp**2)) / I1_rms * 100
+
+print(f"16.4: RMS Current I_rms = {I_rms:.2f} A")
+print(f"16.4: Total Harmonic Distortion (THD) = {THD_I:.2f} %")
+
+# 16.5: 実効電力、皮相電力、力率の計算
+# 実効値の計算
+V_rms = np.sqrt(V1_amp**2 + V2_amp**2)
+I_rms_16_5 = np.sqrt(I4_amp**2 + I5_amp**2)
+
+# 位相差の考慮
+theta_V1 = 0
+theta_V2 = -np.pi/6
+theta_I4 = np.pi/3
+theta_I5 = 0
+
+# 各成分の実効電力 (P = V_rms * I_rms * cos(θ))
+P1 = V1_amp / np.sqrt(2) * I4_amp / np.sqrt(2) * np.cos(theta_V1 - theta_I4)
+P2 = V2_amp / np.sqrt(2) * I5_amp / np.sqrt(2) * np.cos(theta_V2 - theta_I5)
+P_total = P1 + P2
+
+# 皮相電力と力率
+S = V_rms * I_rms_16_5
+power_factor = P_total / S
+
+print(f"16.5: RMS Voltage V_rms = {V_rms:.2f} V")
+print(f"16.5: RMS Current I_rms = {I_rms_16_5:.2f} A")
+print(f"16.5: Real Power P_total = {P_total:.2f} W")
+print(f"16.5: Apparent Power S = {S:.2f} VA")
+print(f"16.5: Power Factor = {power_factor:.2f}")

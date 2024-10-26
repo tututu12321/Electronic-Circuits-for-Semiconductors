@@ -1,0 +1,28 @@
+import numpy as np
+from scipy.linalg import lu, lu_solve, lu_factor
+
+# 回路パラメータの定義
+R1 = 1.0  # 抵抗1 (オーム)
+R2 = 2.0  # 抵抗2 (オーム)
+R3 = 3.0  # 抵抗3 (オーム)
+V1 = 10.0  # 電圧源 (V)
+
+# 修正接点法による行列の構築
+# ノード方程式: G * V = I
+# G: コンダクタンス行列, V: ノード電圧ベクトル, I: 電流ベクトル
+
+G = np.array([
+    [1/R1 + 1/R2, -1/R2],
+    [-1/R2, 1/R2 + 1/R3]
+])
+
+I = np.array([V1/R1, 0])  # 電流ベクトル
+
+# LU分解を使って線形方程式を解く
+lu_piv = lu_factor(G)
+V = lu_solve(lu_piv, I)
+
+# 結果の表示
+print("ノード電圧:")
+print(f"V1 = {V[0]:.2f} V")
+print(f"V2 = {V[1]:.2f} V")

@@ -1,0 +1,60 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 等差数列を生成する関数
+def generate_arithmetic_sequence(start, stop, step):
+    return np.arange(start, stop + step, step)
+
+# 等比数列を生成する関数
+def generate_geometric_sequence(start, stop, ratio, max_count=100):
+    values = []
+    value = start
+    while value <= stop and len(values) < max_count:
+        values.append(value)
+        value *= ratio
+    return np.array(values)
+
+# 等差数列の抵抗値
+arithmetic_1k = generate_arithmetic_sequence(1, 10, 1) * 1e3  # 1kΩ刻み
+arithmetic_10k = generate_arithmetic_sequence(10, 100, 10) * 1e3  # 10kΩ刻み
+arithmetic_100k = generate_arithmetic_sequence(100, 1000, 100) * 1e3  # 100kΩ刻み
+
+# 等比数列の抵抗値 (公比: 10^(1/24) ≈ 1.1)
+geometric_ratio = 10 ** (1 / 24)
+geometric_values = generate_geometric_sequence(1e3, 1e6, geometric_ratio)
+
+# E24系列の値 (1kΩから1MΩまで)
+e24_series = np.array([
+    1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0,
+    3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1
+]) * 1e3
+
+# E24系列を拡張して1MΩまでの値を生成
+e24_expanded = np.concatenate([e24_series * (10**i) for i in range(4)])
+
+# 抵抗値のリニア目盛でのプロット
+plt.figure(figsize=(12, 6))
+plt.subplot(2, 1, 1)
+plt.plot(arithmetic_1k, np.ones_like(arithmetic_1k), 'o-', label='1kΩ Step', color='blue')
+plt.plot(arithmetic_10k, np.ones_like(arithmetic_10k) * 2, 'o-', label='10kΩ Step', color='green')
+plt.plot(arithmetic_100k, np.ones_like(arithmetic_100k) * 3, 'o-', label='100kΩ Step', color='red')
+plt.title('Arithmetic Sequence of Resistor Values (Linear Scale)')
+plt.xlabel('Resistance (Ω)')
+plt.ylabel('Level')
+plt.legend(loc='upper left')
+plt.grid(True)
+
+# 等比数列とE24系列の対数目盛でのプロット
+plt.subplot(2, 1, 2)
+plt.plot(geometric_values, np.ones_like(geometric_values), 'o-', label='Geometric Sequence', color='purple')
+plt.plot(e24_expanded, np.ones_like(e24_expanded) * 2, 'o-', label='E24 Series', color='orange')
+plt.title('Geometric Sequence vs E24 Series (Log Scale)')
+plt.xlabel('Resistance (Ω)')
+plt.ylabel('Level')
+plt.xscale('log')
+plt.grid(True, which='both', linestyle='--')
+plt.legend(loc='upper left')
+
+# プロットの表示
+plt.tight_layout()
+plt.show()

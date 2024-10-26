@@ -1,0 +1,38 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# パラメータの定義
+AF0 = 1000  # 十分低い周波数におけるループ利得
+wp1 = 10  # ポール1の周波数 (例として10 rad/s)
+wp2 = 100  # ポール2の周波数 (例として100 rad/s)
+wp3 = 1000  # ポール3の周波数 (例として1000 rad/s)
+
+# 伝達関数の分子と分母の係数
+numerator = [AF0]  # 分子の係数
+denominator = [1, (1/wp1 + 1/wp2 + 1/wp3), (wp1*wp2 + wp2*wp3 + wp3*wp1)/(wp1*wp2*wp3), 1/(wp1*wp2*wp3)]  # 分母の係数
+
+# 伝達関数の生成
+system = signal.TransferFunction(numerator, denominator)
+
+# ボード線図のプロット
+w, mag, phase = signal.bode(system)
+
+# ゲインプロット
+plt.figure(figsize=(10, 6))
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag)  # 周波数は対数スケールでプロット
+plt.xlabel("Frequency (rad/s)")
+plt.ylabel("Magnitude (dB)")
+plt.title("Bode Plot of AF(s)")
+plt.grid(which="both", linestyle="--", linewidth=0.5)
+
+# 位相プロット
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase)  # 周波数は対数スケールでプロット
+plt.xlabel("Frequency (rad/s)")
+plt.ylabel("Phase (degrees)")
+plt.grid(which="both", linestyle="--", linewidth=0.5)
+
+plt.tight_layout()
+plt.show()

@@ -1,0 +1,43 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# パラメータの定義
+RF = 100e3  # フィードバック抵抗 (100 kΩ)
+RS = 11e3   # ソース抵抗 (11 kΩ)
+fc = 231.25e3  # カットオフ周波数 (231.25 kHz)
+T = 1 / (2 * np.pi * fc)  # 時間定数 T を計算
+
+# 伝達関数の定義
+gain = 1 + RF / RS
+numerator = [gain]
+denominator = [T, 1]
+
+# 周波数範囲の設定
+w = np.logspace(3, 8, 1000)  # 1 kHz から 100 MHz までの周波数
+
+# 伝達関数の作成
+system = signal.TransferFunction(numerator, denominator)
+w, mag, phase = signal.bode(system, w)
+
+# ボード線図のプロット
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
+
+# ゲイン(dB)プロット
+ax1.semilogx(w / (2 * np.pi), mag, color='b', label='Magnitude')
+ax1.set_title('Bode Plot')
+ax1.set_ylabel('Magnitude [dB]')
+ax1.grid(True, which='both', linestyle='--', linewidth=0.5)
+ax1.axvline(fc, color='r', linestyle='--', label=f'Cutoff: {fc/1e3:.2f} kHz')
+ax1.legend()
+
+# 位相プロット
+ax2.semilogx(w / (2 * np.pi), phase, color='g', label='Phase')
+ax2.set_xlabel('Frequency [Hz]')
+ax2.set_ylabel('Phase [degrees]')
+ax2.grid(True, which='both', linestyle='--', linewidth=0.5)
+ax2.axvline(fc, color='r', linestyle='--', label=f'Cutoff: {fc/1e3:.2f} kHz')
+ax2.legend()
+
+plt.tight_layout()
+plt.show()

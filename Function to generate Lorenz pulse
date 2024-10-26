@@ -1,0 +1,26 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ローレンツパルスを生成する関数
+def lorentz_pulse(x, fs, half_width):
+    return fs / (1 + (200 / half_width * (x - 0.5))**2)
+
+# パラメータの設定
+fs = 1  # 振幅範囲（例: 1）
+half_width_values = [5, 10, 15, 20]  # HalfWidthの例
+x = np.linspace(0, 1, 1000)  # xの範囲を0から1に設定
+
+# プロットの作成
+plt.figure(figsize=(10, 6))
+
+for half_width in half_width_values:
+    y = lorentz_pulse(x, fs, half_width)
+    plt.plot(x, y, label=f'HalfWidth={half_width}')
+
+# グラフの設定
+plt.title('Lorentz Pulse')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid(True)
+plt.legend()
+plt.show()

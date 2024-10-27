@@ -1,0 +1,70 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Define parameters
+b0 = 1.0  # Numerator constant
+a2 = 1.0  # Coefficient of s^2
+a1 = 0.5  # Coefficient of s
+a0 = 1.0  # Coefficient of s^0
+
+# Calculate standardized form parameters
+K = b0 / a0
+omega_n = np.sqrt(a0 / a2)
+zeta = a1 / (2 * np.sqrt(a0 * a2))
+
+# Define transfer function
+numerator = [K * omega_n**2]
+denominator = [1, 2 * zeta * omega_n, omega_n**2]
+system = signal.TransferFunction(numerator, denominator)
+
+# Create a frequency range for Bode plots
+w, mag, phase = signal.bode(system)
+
+# Plot Bode magnitude and phase plots
+plt.figure(figsize=(10, 8))
+
+# Bode magnitude plot
+plt.subplot(3, 1, 1)
+plt.semilogx(w, mag)
+plt.title('Bode Plot of G(s)')
+plt.xlabel('Frequency (rad/s)')
+plt.ylabel('Magnitude (dB)')
+plt.grid(True)
+
+# Bode phase plot
+plt.subplot(3, 1, 2)
+plt.semilogx(w, phase)
+plt.xlabel('Frequency (rad/s)')
+plt.ylabel('Phase (degrees)')
+plt.grid(True)
+
+# Time vector for time-domain responses
+t = np.linspace(0, 10, 1000)
+
+# Compute impulse response
+t_imp, y_imp = signal.impulse(system, T=t)
+
+# Compute step response
+t_step, y_step = signal.step(system, T=t)
+
+# Plot impulse response
+plt.figure(figsize=(10, 6))
+plt.subplot(2, 1, 1)
+plt.plot(t_imp, y_imp)
+plt.title('Impulse Response of G(s)')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.grid(True)
+
+# Plot step response
+plt.subplot(2, 1, 2)
+plt.plot(t_step, y_step)
+plt.title('Step Response of G(s)')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.grid(True)
+
+# Adjust layout and show the plots
+plt.tight_layout()
+plt.show()

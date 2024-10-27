@@ -1,0 +1,45 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Given parameters from the image
+V_noise = 3e-9  # Voltage noise (V/sqrt(Hz))
+RS_I_noise = 1e-9  # Noise contribution from RS * I_noise (V/sqrt(Hz))
+thermal_noise_RS = 0.1e-9  # 4kTRS noise (V/sqrt(Hz))
+thermal_noise_R1_R2 = 0.2e-9  # 4kT(R1//R2) noise (V/sqrt(Hz))
+I_noise_R1_R2 = 0.1e-9  # I_noise * (R1/R2) contribution (V/sqrt(Hz))
+G_noise = 101  # Noise gain
+BW = 47.1e3  # Bandwidth (Hz)
+
+# Calculate input-referred noise (V_noise_IN)
+V_noise_IN = np.sqrt(
+    V_noise**2 +
+    RS_I_noise**2 +
+    thermal_noise_RS**2 +
+    thermal_noise_R1_R2**2 +
+    I_noise_R1_R2**2
+)
+
+# Calculate output noise (V_noise_OUT)
+V_noise_OUT = G_noise * V_noise_IN * np.sqrt(BW)
+
+# Display the results
+print(f"Input-referred noise (V_noise_IN): {V_noise_IN * 1e9:.2f} nV/sqrt(Hz)")
+print(f"Output noise (V_noise_OUT): {V_noise_OUT * 1e6:.2f} uVrms")
+
+# Convert output noise to peak-to-peak value (for sine wave approximation)
+V_noise_OUT_pp = V_noise_OUT * 2 * np.sqrt(2)  # RMS to peak-to-peak conversion
+print(f"Output noise (V_noise_OUT peak-to-peak): {V_noise_OUT_pp * 1e6:.2f} uVpp")
+
+# Plot the noise power spectral density (if needed)
+frequencies = np.linspace(1, BW, 1000)  # Frequency range for plotting (up to BW)
+noise_spectrum = V_noise_OUT / np.sqrt(frequencies)
+
+plt.figure(figsize=(10, 6))
+plt.plot(frequencies / 1e3, noise_spectrum)
+plt.xlabel('Frequency [kHz]', fontsize=14)
+plt.ylabel('Noise Spectral Density [V/√Hz]', fontsize=14)
+plt.title('Noise Spectral Density vs Frequency', fontsize=16)
+plt.grid(True)
+plt.xscale('log')
+plt.yscale('log')
+plt.show()

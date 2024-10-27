@@ -1,0 +1,25 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define parameters
+theta_r = np.linspace(0, 2 * np.pi, 1000)  # Rotor angle (rad)
+id_star = 1.0  # d-axis current (A)
+iq_star = 0.0  # q-axis current (A)
+
+# Compute phase currents using the transformation
+ia_star = np.sqrt(2/3) * (np.cos(theta_r) * id_star - np.sin(theta_r) * iq_star)
+ib_star = np.sqrt(2/3) * (np.cos(theta_r - 2 * np.pi / 3) * id_star - np.sin(theta_r - 2 * np.pi / 3) * iq_star)
+ic_star = np.sqrt(2/3) * (np.cos(theta_r + 2 * np.pi / 3) * id_star - np.sin(theta_r + 2 * np.pi / 3) * iq_star)
+
+# Plot the phase currents
+plt.figure(figsize=(10, 6))
+plt.plot(theta_r, ia_star, label=r'$i_a^*$', color='blue')
+plt.plot(theta_r, ib_star, label=r'$i_b^*$', color='green')
+plt.plot(theta_r, ic_star, label=r'$i_c^*$', color='red')
+plt.title('Transformation of d-q Currents to a-b-c Phase Currents')
+plt.xlabel(r'$\theta_r$ (rad)')
+plt.ylabel('Current (A)')
+plt.grid(True)
+plt.legend(loc='upper right')
+plt.tight_layout()
+plt.show()

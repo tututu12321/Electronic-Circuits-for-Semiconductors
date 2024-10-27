@@ -1,0 +1,85 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータの設定
+fs = 1000  # サンプリングレート (Hz)
+duration = 1.0  # 信号の持続時間 (秒)
+t = np.linspace(0, duration, int(fs * duration), endpoint=False)
+frequency = 5  # Sin波の周波数 (Hz)
+amplitude = 1  # 振幅
+
+# Sin波生成
+sin_wave = amplitude * np.sin(2 * np.pi * frequency * t)
+
+# 8ビットおよび10ビットのAD変換
+def adc_conversion(signal, bit_depth):
+    adc_levels = 2 ** bit_depth
+    # -1から1の範囲を0からadc_levels-1にマッピング
+    quantized_signal = np.round((signal + 1) * (adc_levels - 1) / 2)
+    # 再び-1から1の範囲に戻す
+    quantized_signal = 2 * quantized_signal / (adc_levels - 1) - 1
+    return quantized_signal
+
+# AD変換後の信号
+sin_wave_8bit = adc_conversion(sin_wave, 8)
+sin_wave_10bit = adc_conversion(sin_wave, 10)
+
+# FFT処理とパワースペクトルの計算
+def compute_fft(signal, fs):
+    n = len(signal)
+    fft_result = np.fft.fft(signal)
+    fft_freq = np.fft.fftfreq(n, 1/fs)
+    power_spectrum = np.abs(fft_result) ** 2 / n
+    return fft_freq[:n // 2], power_spectrum[:n // 2]
+
+# パワースペクトルの計算
+freqs_8bit, power_spectrum_8bit = compute_fft(sin_wave_8bit, fs)
+freqs_10bit, power_spectrum_10bit = compute_fft(sin_wave_10bit, fs)
+
+# SNR計算
+def calculate_snr(signal, quantized_signal):
+    signal_power = np.mean(signal ** 2)
+    noise_power = np.mean((signal - quantized_signal) ** 2)
+    snr = 10 * np.log10(signal_power / noise_power)
+    return snr
+
+# 8ビットと10ビットのSNR計算
+snr_8bit = calculate_snr(sin_wave, sin_wave_8bit)
+snr_10bit = calculate_snr(sin_wave, sin_wave_10bit)
+
+# プロット
+plt.figure(figsize=(14, 8))
+
+# 元のSin波と量子化後の波形
+plt.subplot(3, 1, 1)
+plt.plot(t, sin_wave, label='Original Sin Wave')
+plt.plot(t, sin_wave_8bit, label='8-bit Quantized', alpha=0.7)
+plt.plot(t, sin_wave_10bit, label='10-bit Quantized', alpha=0.7)
+plt.title('Sin Wave and Quantized Signals')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid()
+
+# 8ビットのパワースペクトル
+plt.subplot(3, 1, 2)
+plt.plot(freqs_8bit, 10 * np.log10(power_spectrum_8bit), label='8-bit Power Spectrum')
+plt.title('8-bit Quantized Signal Power Spectrum')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Power (dB)')
+plt.grid()
+
+# 10ビットのパワースペクトル
+plt.subplot(3, 1, 3)
+plt.plot(freqs_10bit, 10 * np.log10(power_spectrum_10bit), label='10-bit Power Spectrum', color='orange')
+plt.title('10-bit Quantized Signal Power Spectrum')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Power (dB)')
+plt.grid()
+
+plt.tight_layout()
+plt.show()
+
+# SNR結果の表示
+print(f"8-bit SNR: {snr_8bit:.2f} dB")
+print(f"10-bit SNR: {snr_10bit:.2f} dB")

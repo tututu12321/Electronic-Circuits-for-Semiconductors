@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 関数定義: 入力電圧 Vin を計算
+def calculate_vin(Vo, Ro, Rin):
+    """
+    Calculate the input voltage Vin based on the given output voltage Vo, 
+    output impedance Ro, and input impedance Rin.
+    """
+    return (Rin / (Ro + Rin)) * Vo
+
+# パラメータ設定
+Vo = 1.0  # 出力電圧 Vo = 1V
+Ro = 10e3  # 送信側の出力インピーダンス Ro = 10kΩ
+
+# a) Ro ≫ Rin の場合: Rin = 2kΩ
+Rin_a = 2e3  # 受信側の入力インピーダンス Rin = 2kΩ
+Vin_a = calculate_vin(Vo, Ro, Rin_a)
+print(f"Vin for case (a) (Rin = 2kΩ): {Vin_a:.3f} V")
+
+# b) Ro ≪ Rin の場合: Rin = 100kΩ
+Rin_b = 100e3  # 受信側の入力インピーダンス Rin = 100kΩ
+Vin_b = calculate_vin(Vo, Ro, Rin_b)
+print(f"Vin for case (b) (Rin = 100kΩ): {Vin_b:.3f} V")
+
+# プロット: Rin の変化に対する Vin のプロット
+Rin_values = np.linspace(1e3, 100e3, 500)  # 1kΩから100kΩまでのRinの範囲
+Vin_values = calculate_vin(Vo, Ro, Rin_values)
+
+plt.figure(figsize=(8, 6))
+plt.plot(Rin_values / 1e3, Vin_values, label="Vin vs. Rin", color='blue')
+plt.axvline(x=Rin_a / 1e3, color='red', linestyle='--', label=f"Rin = {Rin_a/1e3:.0f}kΩ, Vin = {Vin_a:.3f} V")
+plt.axvline(x=Rin_b / 1e3, color='green', linestyle='--', label=f"Rin = {Rin_b/1e3:.0f}kΩ, Vin = {Vin_b:.3f} V")
+plt.xlabel("Rin [kΩ]")
+plt.ylabel("Vin [V]")
+plt.title("Input Voltage (Vin) vs. Input Impedance (Rin)")
+plt.grid(True)
+plt.legend()
+plt.show()

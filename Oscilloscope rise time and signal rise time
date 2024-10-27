@@ -1,0 +1,31 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の設定
+To_values = np.linspace(0.01, 1, 100)  # オシロスコープの立ち上がり時間 (0.01 s から 1 s)
+Ts = 0.5  # 信号の立ち上がり時間 (s)
+
+# 条件の計算
+condition = Ts / 4  # 1/4 * Ts
+
+# 条件を満たす範囲の確認
+is_valid = To_values <= condition
+
+# プロット
+plt.figure(figsize=(8, 5))
+plt.plot(To_values, is_valid, label=r'$T_o \leq \frac{1}{4} T_s$', color='blue', linewidth=2)
+plt.axhline(y=1, color='green', linestyle='--', label='Condition Satisfied (True)')
+plt.axhline(y=0, color='red', linestyle='--', label='Condition Not Satisfied (False)')
+plt.axvline(x=condition, color='purple', linestyle=':', label=f'1/4 $T_s$ = {condition:.2f} s')
+plt.xlabel('Oscilloscope Rise Time $T_o$ (s)')
+plt.ylabel('Condition Satisfied')
+plt.title('Oscilloscope Rise Time vs Signal Rise Time Condition')
+plt.grid(True)
+plt.ylim(-0.1, 1.1)
+plt.tight_layout()
+plt.legend()
+plt.show()
+
+# 結果の表示
+print(f"信号の立ち上がり時間 Ts = {Ts} s の場合、")
+print(f"オシロスコープの立ち上がり時間 To は {condition:.2f} s 以下である必要があります。")

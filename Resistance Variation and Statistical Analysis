@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as stats
+
+# パラメータ設定
+mean_resistance = 1000  # 抵抗の平均値 (1kΩ)
+tolerance = 0.05  # 抵抗の許容誤差 (±5%)
+num_samples = 1000  # サンプル数
+
+# 抵抗値のばらつきのシミュレーション (正規分布)
+# 標準偏差は平均値の許容誤差に基づいて計算
+std_dev = mean_resistance * tolerance
+resistances = np.random.normal(mean_resistance, std_dev, num_samples)
+
+# 統計情報の計算
+mean_simulated = np.mean(resistances)
+std_dev_simulated = np.std(resistances)
+print(f"Simulated Mean: {mean_simulated:.2f} Ω")
+print(f"Simulated Std Dev: {std_dev_simulated:.2f} Ω")
+
+# ヒストグラムと正規分布のプロット
+plt.figure(figsize=(10, 6))
+
+# ヒストグラム
+plt.hist(resistances, bins=30, density=True, alpha=0.6, color='blue', label='Simulated Data')
+
+# 正規分布のフィッティングとプロット
+xmin, xmax = plt.xlim()
+x = np.linspace(xmin, xmax, 100)
+p = stats.norm.pdf(x, mean_resistance, std_dev)
+plt.plot(x, p, 'k', linewidth=2, label='Normal Distribution Fit')
+
+# プロットの設定
+plt.title('Distribution of Resistor Values with Tolerance')
+plt.xlabel('Resistance (Ω)')
+plt.ylabel('Probability Density')
+plt.grid(True)
+plt.legend()
+plt.show()

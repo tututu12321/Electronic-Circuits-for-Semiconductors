@@ -1,0 +1,37 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の設定
+Vcc = 24  # 電源電圧 (V)
+Rc = 12e3  # コレクタ抵抗 (12kΩ)
+Ib = 4.2e-6  # ベース電流 (4.2µA)
+hFE_values = np.array([200, 240, 300])  # hFE の変化 (200, 240, 300)
+
+# コレクタ電流とコレクタ電圧の計算
+Ic_values = Ib * hFE_values  # コレクタ電流 (A)
+Vc_values = Vcc - Ic_values * Rc  # コレクタ電圧 (V)
+
+# 結果のプロット
+plt.figure(figsize=(8, 5))
+
+# コレクタ電流のプロット
+plt.subplot(2, 1, 1)
+plt.plot(hFE_values, Ic_values * 1e3, 'bo-', label='Collector Current $I_C$ (mA)')
+plt.xlabel('Current Gain $h_{FE}$')
+plt.ylabel('Collector Current $I_C$ (mA)')
+plt.title('Effect of $h_{FE}$ on $I_C$ and $V_C$')
+plt.grid(True)
+
+# コレクタ電圧のプロット
+plt.subplot(2, 1, 2)
+plt.plot(hFE_values, Vc_values, 'ro-', label='Collector Voltage $V_C$ (V)')
+plt.xlabel('Current Gain $h_{FE}$')
+plt.ylabel('Collector Voltage $V_C$ (V)')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+# 結果の表示
+for hFE, Ic, Vc in zip(hFE_values, Ic_values, Vc_values):
+    print(f"hFE = {hFE}: Ic = {Ic * 1e3:.2f} mA, Vc = {Vc:.2f} V")

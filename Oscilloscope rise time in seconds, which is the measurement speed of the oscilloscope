@@ -1,0 +1,35 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定義: 入力信号の立ち上がり時間 (T0) とオシロスコープの立ち上がり時間 (Ts)
+T0 = 2e-9  # 入力信号の立ち上がり時間 (秒)
+Ts = 1e-9  # オシロスコープの立ち上がり時間 (秒)
+
+# 観測される立ち上がり時間 T の計算式
+# T = sqrt(T0^2 + Ts^2)
+T = np.sqrt(T0**2 + Ts**2)
+
+print(f"Observed Rise Time (T): {T * 1e9:.2f} ns")
+
+# プロット: 立ち上がり曲線
+time = np.linspace(0, 5 * T, 1000)
+input_signal = np.heaviside(time - T0, 0.5)
+oscilloscope_response = 1 - np.exp(-(time - T0) / Ts)
+oscilloscope_response[time < T0] = 0  # T0未満の部分をゼロに設定
+
+# プロット設定
+plt.figure(figsize=(8, 5))
+plt.plot(time * 1e9, input_signal, label='Input Signal', linestyle='--', color='blue')
+plt.plot(time * 1e9, oscilloscope_response, label='Oscilloscope Response', color='red')
+plt.axvline(T * 1e9, color='green', linestyle=':', label=f'Observed Rise Time T = {T * 1e9:.2f} ns')
+plt.axhline(0.1, color='gray', linestyle='--', label='10% Level')
+plt.axhline(0.9, color='gray', linestyle='--', label='90% Level')
+
+# ラベルとグリッド設定
+plt.title('Rise Time Analysis')
+plt.xlabel('Time [ns]')
+plt.ylabel('Amplitude')
+plt.grid(True)
+plt.legend(loc='best')
+plt.tight_layout()
+plt.show()

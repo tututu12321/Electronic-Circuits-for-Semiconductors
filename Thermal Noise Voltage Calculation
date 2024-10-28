@@ -1,0 +1,29 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. Define constants ---
+k = 1.38e-23  # Boltzmann constant (J/K)
+T = 300  # Temperature (K)
+B = 1e3  # Bandwidth (Hz) - example: 1000 Hz
+
+# Define a range of resistances (Ohms)
+R_values = np.linspace(1e2, 1e6, 500)  # Resistance from 100 Ohms to 1 Mega Ohm
+
+# --- 2. Calculate thermal noise voltage for each resistance ---
+V_n_values = np.sqrt(4 * k * T * R_values * B)  # Thermal noise voltage (V)
+
+# --- 3. Plot thermal noise voltage vs resistance ---
+plt.figure(figsize=(8, 5))
+plt.plot(R_values, V_n_values * 1e9)  # Convert V to nV for better visualization
+plt.title('Thermal Noise Voltage vs. Resistance')
+plt.xlabel('Resistance (Ohms)')
+plt.ylabel('Thermal Noise Voltage (nV)')
+plt.grid(True)
+plt.xscale('log')  # Use logarithmic scale for resistance
+plt.tight_layout()
+plt.show()
+
+# --- 4. Example Calculation for a Specific Resistance ---
+R_example = 1e3  # Example resistance of 1 kOhm
+V_n_example = np.sqrt(4 * k * T * R_example * B)
+print(f"Thermal noise voltage for R = {R_example} Ohms: {V_n_example * 1e9:.2f} nV")

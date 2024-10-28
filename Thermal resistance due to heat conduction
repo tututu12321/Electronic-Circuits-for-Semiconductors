@@ -1,0 +1,58 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. 熱伝導による熱抵抗の計算 ---
+# 熱伝導のパラメータ
+thermal_conductivity = 200  # 熱伝導率 [W/mK] (例: 銅)
+length = np.linspace(0.01, 0.1, 100)  # 長さ [m] (0.01mから0.1m)
+area = 0.01  # 断面積 [m^2] (例: 0.01 m^2)
+
+# 熱伝導による熱抵抗の計算
+Rth_conduction = length / (thermal_conductivity * area)
+
+# --- 2. 対流による熱抵抗の計算 ---
+# 対流のパラメータ
+surface_area = 0.02  # 表面積 [m^2]
+temperature_difference = 20  # 温度差 [℃]
+
+# 自然対流の対流熱伝達率の計算 (例: 自然対流)
+C = 0.5  # 係数 (形状と設置条件による)
+L = 0.1  # 代表長さ [m]
+hm_natural = 2.51 * C * (temperature_difference / L)**0.25  # [W/m^2K]
+
+# 強制対流の対流熱伝達率の計算 (例: 層流)
+wind_speed = np.linspace(0.5, 5.0, 100)  # 風速 [m/s] (0.5m/sから5m/s)
+hm_forced = 3.86 * (wind_speed / L)**0.5  # [W/m^2K]
+
+# 対流による熱抵抗の計算
+Rth_convection_natural = 1 / (hm_natural * surface_area)
+Rth_convection_forced = 1 / (hm_forced * surface_area)
+
+# --- 3. プロット ---
+plt.figure(figsize=(10, 6))
+
+# 熱伝導による熱抵抗のプロット
+plt.subplot(2, 1, 1)
+plt.plot(length, Rth_conduction, label='Thermal Conduction')
+plt.xlabel('Length (m)')
+plt.ylabel('Thermal Resistance (°C/W)')
+plt.title('Thermal Resistance by Conduction')
+plt.grid(True)
+plt.legend()
+
+# 対流による熱抵抗のプロット
+plt.subplot(2, 1, 2)
+plt.plot(wind_speed, Rth_convection_forced, label='Forced Convection (Laminar Flow)', color='blue')
+plt.axhline(Rth_convection_natural, color='red', linestyle='--', label='Natural Convection')
+plt.xlabel('Wind Speed (m/s)')
+plt.ylabel('Thermal Resistance (°C/W)')
+plt.title('Thermal Resistance by Convection')
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+# --- 4. 結果の表示 ---
+print(f"Thermal resistance (Natural Convection): {Rth_convection_natural:.3f} °C/W")
+print(f"Thermal resistance for Forced Convection with Wind Speed = 2 m/s: {1 / (3.86 * (2 / L)**0.5 * surface_area):.3f} °C/W")

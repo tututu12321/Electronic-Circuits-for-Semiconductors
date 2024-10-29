@@ -1,0 +1,50 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータの設定
+gm = 2e-3          # 相互コンダクタンス (S)
+rd = 10e3          # 出力抵抗 (Ω)
+RL = 5e3           # 負荷抵抗 (Ω)
+V_offset_in = 1.5  # 入力オフセット電圧 (V)
+V_offset_out = 2.0 # 出力オフセット電圧 (V)
+Vin_amplitude = 0.01 # 入力信号の振幅 (V)
+frequency = 1e6    # 入力信号の周波数 (Hz)
+t = np.linspace(0, 3e-6, 1000)  # 時間軸 (0から3usまで)
+
+# 差動入力信号の設定
+Vin1 = V_offset_in + Vin_amplitude * np.sin(2 * np.pi * frequency * t)  # 入力 v1
+Vin2 = V_offset_in + Vin_amplitude * np.sin(2 * np.pi * frequency * t + np.pi)  # 入力 v2（逆相）
+
+# 増幅率の計算
+Av = -gm * (rd * RL) / (rd + RL)
+print(f"増幅率 A_v = {Av:.2f}")
+
+# 差動増幅回路の出力の計算
+Vout1 = V_offset_out + Av * (Vin1 - V_offset_in)  # 出力 v3
+Vout2 = V_offset_out + Av * (Vin2 - V_offset_in)  # 出力 v4（逆相）
+
+# プロット
+plt.figure(figsize=(12, 6))
+
+# 入力波形
+plt.subplot(2, 1, 1)
+plt.plot(t * 1e6, Vin1, label="V(Vin1)", color="green", marker='v', markersize=3, markevery=50)
+plt.plot(t * 1e6, Vin2, label="V(Vin2)", color="red", marker='^', markersize=3, markevery=50)
+plt.xlabel("Time (µs)")
+plt.ylabel("Voltage (V)")
+plt.title("Differential Amplifier Input Signals")
+plt.legend()
+plt.grid()
+
+# 出力波形
+plt.subplot(2, 1, 2)
+plt.plot(t * 1e6, Vout1, label="V(Vout1)", color="green", marker='s', markersize=3, markevery=50)
+plt.plot(t * 1e6, Vout2, label="V(Vout2)", color="red", marker='d', markersize=3, markevery=50)
+plt.xlabel("Time (µs)")
+plt.ylabel("Voltage (V)")
+plt.title(f"Differential Amplifier Output Signals (Gain A_v = {Av:.2f})")
+plt.legend()
+plt.grid()
+
+plt.tight_layout()
+plt.show()

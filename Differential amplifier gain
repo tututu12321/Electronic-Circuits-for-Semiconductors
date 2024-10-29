@@ -1,0 +1,32 @@
+import numpy as np
+
+# パラメータの設定
+gm1 = 2e-3     # g_m1 (S)
+gm2 = 2e-3     # g_m2 (S)
+gm3 = 2e-3     # g_m3 (S)
+gm4 = 2e-3     # g_m4 (S)
+ro1 = 10e3     # r_o1 (Ω)
+ro2 = 10e3     # r_o2 (Ω)
+ro3 = 10e3     # r_o3 (Ω)
+ro4 = 10e3     # r_o4 (Ω)
+vid = 1e-3     # 入力差動電圧 v_id (V)
+
+# 1. v_g3 の計算
+vg3 = -gm1 * vid / (2 * gm3)
+print(f"v_g3 = {vg3:.4f} V")
+
+# 2. i_o の計算
+io = -gm4 * vg3 + (gm2 * vid / 2)
+print(f"i_o = {io:.4f} A")
+
+# 3. 出力抵抗 r_o2 || r_o4 の並列計算
+ro_parallel = (ro2 * ro4) / (ro2 + ro4)
+print(f"(r_o2 || r_o4) = {ro_parallel:.2f} Ω")
+
+# 4. 出力電圧 v_out の計算
+vout = ro_parallel * io
+print(f"v_out = {vout:.4f} V")
+
+# 5. ゲイン A_d の計算
+Ad = vout / vid
+print(f"差動ゲイン A_d = {Ad:.2f}")

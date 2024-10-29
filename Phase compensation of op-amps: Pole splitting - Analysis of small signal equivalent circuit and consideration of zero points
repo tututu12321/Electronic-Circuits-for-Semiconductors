@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 回路パラメータの設定
+gm5 = 2e-3               # g_m5 (S)
+Zout = 10e3              # 出力インピーダンス Z_out (Ω)
+Zin = 1e3                # 入力インピーダンス Z_in (Ω)
+CA = 1e-12               # 容量 C_A (F)
+A2 = gm5 * Zout          # ゲイン A_2
+
+# 周波数範囲の設定
+frequencies = np.logspace(0, 8, 1000)  # 1 Hz から 100 MHz まで
+s = 2j * np.pi * frequencies           # s = jω
+
+# 伝達関数の計算
+numerator = A2 * (1 - s * CA / gm5)
+denominator = 1 + s * CA * (Zin + Zout + Zin * gm5 * Zout)
+gain = numerator / denominator
+
+# dBスケールへの変換
+gain_dB = 20 * np.log10(np.abs(gain))
+phase = np.angle(gain, deg=True)
+
+# ボード線図のプロット
+plt.figure(figsize=(12, 8))
+
+# ゲインプロット
+plt.subplot(2, 1, 1)
+plt.semilogx(frequencies, gain_dB, color="blue", label="Magnitude (dB)")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Gain (dB)")
+plt.title("Bode Plot - Magnitude Response")
+plt.grid(which="both", linestyle="--", linewidth=0.5)
+plt.legend()
+
+# 位相プロット
+plt.subplot(2, 1, 2)
+plt.semilogx(frequencies, phase, color="green", label="Phase (degrees)")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Phase (degrees)")
+plt.title("Bode Plot - Phase Response")
+plt.grid(which="both", linestyle="--", linewidth=0.5)
+plt.legend()
+
+plt.tight_layout()
+plt.show()

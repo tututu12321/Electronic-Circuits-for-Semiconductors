@@ -1,0 +1,42 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータの設定
+VDD = 5.0                  # 電源電圧 (V)
+RL = 10e3                  # 負荷抵抗 (Ω)
+gm = 1e-3                  # 相互コンダクタンス (S)
+Rs = 1e3                   # ソース抵抗 (Ω)
+Cbypass = 1e-6             # バイパスコンデンサ (F)
+gain_dc = -gm * RL / (1 + gm * Rs)  # 直流ゲイン（バイパスなし）
+gain_ac = -gm * RL               # 交流ゲイン（バイパスあり）
+
+# ゲインの表示
+print(f"直流ゲイン A0_DC = {gain_dc:.2f}")
+print(f"交流ゲイン A0_AC (バイパスあり) = {gain_ac:.2f}")
+
+# コメント: 本コードは、以下の資料を参考にしています:
+# 資料URL: https://openit.kek.jp/training/2020/daq/text/transistor-fusayasu.pdf
+# 資料内で説明されているMOSFETのソース接地増幅回路に基づき、バイパスコンデンサの有無による直流ゲインと交流ゲインの違いをシミュレーションしています。
+# バイパスコンデンサはソース抵抗を交流的に短絡するため、交流ゲインを高める役割を果たします。
+
+# 入力信号の設定
+f = 1e3                    # 周波数 (Hz)
+t = np.linspace(0, 30e-3, 1000)  # 時間軸 (0から30msまで)
+Vin_amplitude = 0.5        # 入力信号の振幅 (V)
+Vin = 1.5 + Vin_amplitude * np.sin(2 * np.pi * f * t)  # 入力信号 (V)
+
+# 出力信号の計算
+Vout_dc = gain_dc * (Vin + 1.5) + VDD / 2  # 直流ゲインによる出力信号
+Vout_ac = gain_ac * (Vin + 1.5) + VDD / 2  # 交流ゲイン（バイパスあり）による出力信号
+
+# プロット
+plt.figure(figsize=(10, 5))
+plt.plot(t * 1e3, Vin, label="V(VIN)", color="blue")   # 入力波形
+plt.plot(t * 1e3, Vout_dc, label="V(VOUT, DC Gain)", color="green")  # 直流ゲインの出力波形
+plt.plot(t * 1e3, Vout_ac, label="V(VOUT, AC Gain with Bypass)", color="red")  # 交流ゲインの出力波形（バイパスあり）
+plt.xlabel("Time (ms)")
+plt.ylabel("Voltage (V)")
+plt.title("Transient Response of Common Source Amplifier with Bypass Capacitor")
+plt.legend()
+plt.grid()
+plt.show()

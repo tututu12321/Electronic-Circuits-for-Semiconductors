@@ -1,0 +1,33 @@
+import numpy as np
+
+# 与えられたパラメータの設定
+ID = 100e-6          # ドレイン電流 (A)
+lambda_n = 0.1       # λ_n
+lambda_p = 0.05      # λ_p
+Vth = 0.4            # スレッショルド電圧 (V)
+mu_n_Cox = 200e-6    # μ_n * C_ox (A/V^2)
+W_by_L = 175.79      # W/L 比
+
+# 出力抵抗の計算
+ro2 = 1 / (lambda_n * ID)  # r_o2
+ro3 = 1 / (lambda_p * ID)  # r_o3
+
+# 並列抵抗 (r_o2 || r_o3) の計算
+ro_parallel = (ro2 * ro3) / (ro2 + ro3)
+
+# トランスコンダクタンス g_m の計算
+gm = np.sqrt(2 * ID * mu_n_Cox * (W_by_L))
+
+# ゲイン A_v の計算
+Av = gm * ro_parallel
+
+# ゲート・ソース電圧 V_GS の計算
+Vgs = np.sqrt((2 * ID) / (mu_n_Cox * W_by_L)) + Vth
+
+# 結果の表示
+print(f"出力抵抗 r_o2 = {ro2 / 1e3:.2f} kΩ")
+print(f"出力抵抗 r_o3 = {ro3 / 1e3:.2f} kΩ")
+print(f"(r_o2 || r_o3) = {ro_parallel / 1e3:.2f} kΩ")
+print(f"トランスコンダクタンス g_m = {gm:.6f} S")
+print(f"ゲイン A_v = {Av:.2f}")
+print(f"ゲート・ソース電圧 V_GS = {Vgs:.5f} V")

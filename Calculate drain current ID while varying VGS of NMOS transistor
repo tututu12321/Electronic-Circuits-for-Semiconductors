@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# NMOSのモデルパラメータ
+mu_n = 200e-4      # NMOSの移動度 (m^2/Vs)
+Cox = 1e-3         # ゲート酸化膜容量 (F/m^2)
+W = 100e-6         # チャンネル幅 (m)
+L = 0.5e-6         # チャンネル長 (m)
+Vth = 0.5          # NMOSのしきい値電圧 (V)
+
+# Vgsの範囲
+Vgs_values = np.linspace(0, 1.0, 100)  # Vgsを0Vから1.0Vまで変化させる
+Vds = 1.5                             # 固定したドレイン-ソース電圧
+
+# ドレイン電流計算関数
+def calculate_Id(Vgs, Vds):
+    if Vgs <= Vth:
+        return 0  # しきい値電圧以下では電流は流れない
+    elif Vds < (Vgs - Vth):
+        # トライオード領域（線形領域）
+        return mu_n * Cox * W / L * ((Vgs - Vth) * Vds - 0.5 * Vds ** 2)
+    else:
+        # 飽和領域
+        return 0.5 * mu_n * Cox * W / L * (Vgs - Vth) ** 2
+
+# Idの計算
+Id_values = [calculate_Id(Vgs, Vds) * 1e3 for Vgs in Vgs_values]  # mAに変換
+
+# プロット
+plt.figure(figsize=(8, 6))
+plt.plot(Vgs_values, Id_values, color="green", label='$I_D (M1)$')
+plt.xlabel('$V_{GS}$ (V)')
+plt.ylabel('$I_{D}$ (mA)')
+plt.title('$V_{GS}$ - $I_{D}$ Characteristics')
+plt.xlim(0, 1.0)
+plt.ylim(0, 3.0)
+plt.grid(True)
+plt.legend()
+plt.show()

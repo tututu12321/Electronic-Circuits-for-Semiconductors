@@ -1,0 +1,29 @@
+# パラメータの設定
+W = 50e-6                 # ゲート幅 (m)
+L = 1e-6                  # ゲート長 (m)
+mu = 100e-6               # キャリア移動度 (m^2/V·s)
+Cox = 1e-6                # ゲート酸化膜容量 (F/m^2)
+VGS = 1.1                 # ゲート・ソース電圧 (V)
+VT = 0.7                  # スレッショルド電圧 (V)
+VDD = 5.0                 # 電源電圧 (V)
+Rload = 5e3               # 負荷抵抗 (Ω)
+
+# (1) ドレイン電流 I_D の計算
+ID = 0.5 * (W / L) * mu * Cox * (VGS - VT)**2
+print(f"(1) ドレイン電流 I_D = {ID * 1e6:.2f} µA")
+
+# (2) 出力電圧 V_out の計算
+Vout = VDD - ID * Rload
+print(f"(2) 出力電圧 V_out = {Vout:.2f} V")
+
+# (3) ドレイン・ソース間電圧 V_DS の計算
+VDS = Vout
+print(f"(3) ドレイン・ソース間電圧 V_DS = {VDS:.2f} V")
+
+# (4) 相互コンダクタンス g_m の計算
+gm = (W / L) * mu * Cox * (VGS - VT)
+print(f"(4) 相互コンダクタンス g_m = {gm * 1e6:.2f} µA/V")
+
+# (5) ゲイン A_0 の計算（ron = ∞ と仮定）
+A0 = -gm * Rload
+print(f"(5) ゲイン A_0 = {A0:.2f}")

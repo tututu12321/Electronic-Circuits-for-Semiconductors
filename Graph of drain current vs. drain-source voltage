@@ -1,0 +1,35 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータの設定 / Parameter settings
+mu_n = 400e-4        # 電子移動度 (cm^2/Vs) / Mobility (cm^2/Vs)
+C_ox = 3.45e-8       # 酸化膜容量 (F/cm^2) / Oxide capacitance (F/cm^2)
+W = 10e-6            # チャネル幅 (m) / Channel width (m)
+L = 1e-6             # チャネル長 (m) / Channel length (m)
+V_GS = 1.8           # ゲート-ソース間電圧 (V) / Gate-source voltage (V)
+V_TH = 0.7           # しきい値電圧 (V) / Threshold voltage (V)
+lambda_param = 0.02  # チャネル長変調係数 / Channel length modulation parameter
+
+# V_DS の範囲設定 / Range setting for V_DS
+V_DS = np.linspace(0, 5, 100)  # 0Vから5Vまで / From 0V to 5V
+
+# 飽和領域のドレイン電流 I_D の計算 / Calculation of drain current I_D in saturation region
+I_D = (1/2) * mu_n * C_ox * (W / L) * (V_GS - V_TH)**2 * (1 + lambda_param * V_DS)
+
+# プロットの作成 / Creating the plot
+plt.figure(figsize=(8, 6))
+plt.plot(V_DS, I_D, label=r'$I_D = \frac{1}{2} \mu_n C_{ox} \frac{W}{L} (V_{GS} - V_{TH})^2 (1 + \lambda V_{DS})$', color='blue')
+
+# 横軸との交点を求める / Find the intersection with the x-axis
+V_DS_intercept = V_DS[np.argmin(np.abs(I_D))]  # I_Dが0に最も近いV_DS / V_DS closest to I_D=0
+
+# 交点をプロット / Plot the intersection
+plt.scatter([V_DS_intercept], [0], color='red', marker='o', label=f'Intersection: V_DS = {V_DS_intercept:.2f} V')
+
+# ラベルとタイトルの設定 / Setting labels and title
+plt.xlabel(r'$V_{DS}$ (V)')
+plt.ylabel(r'$I_D$ (A)')
+plt.title('Drain Current $I_D$ vs Drain-Source Voltage $V_{DS}$')
+plt.legend()
+plt.grid(True)
+plt.show()

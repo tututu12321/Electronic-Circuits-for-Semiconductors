@@ -1,0 +1,52 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 非線形関数パラメータ
+a = 10       # 一次係数
+b = 2        # 非対称な非線形性のための二次係数
+c = -2       # 飽和型の反対称非線形性のための三次係数
+
+# 周波数と時間設定
+f1 = 110     # 基本周波数1 (Hz)
+f2 = 510     # 基本周波数2 (Hz)
+fs = 10000   # サンプリング周波数 (Hz)
+T = 0.05     # 信号長 (秒)
+t = np.linspace(0, T, int(T * fs), endpoint=False)  # 時間軸
+
+# 入力信号
+x1 = np.cos(2 * np.pi * f1 * t)  # 入力信号1 (110Hz)
+x2 = np.cos(2 * np.pi * f2 * t)  # 入力信号2 (510Hz)
+x = x1 + x2  # 2つの入力信号の合成
+
+# 出力信号 (非線形性を加えたもの)
+y = a * x + b * x**2 + c * x**3
+
+# フーリエ変換で周波数成分を解析
+X = np.fft.fft(x)
+Y = np.fft.fft(y)
+freqs = np.fft.fftfreq(len(t), 1/fs)
+
+# プロット
+plt.figure(figsize=(12, 8))
+
+# 時間領域の入力信号と出力信号のプロット
+plt.subplot(2, 1, 1)
+plt.plot(t, x, label="Input Signal (x1 + x2)", color="blue")
+plt.plot(t, y, label="Output Signal with Nonlinearity", color="red")
+plt.xlabel("Time (s)")
+plt.ylabel("Amplitude")
+plt.legend()
+plt.title("Time Domain Signal with Nonlinearity")
+plt.grid()
+
+# 周波数領域のプロット
+plt.subplot(2, 1, 2)
+plt.stem(freqs[:len(freqs)//2], np.abs(Y[:len(Y)//2]), 'r', markerfmt=" ", basefmt="-", label="Output Signal Spectrum")
+plt.stem(freqs[:len(freqs)//2], np.abs(X[:len(X)//2]), 'b', markerfmt=" ", basefmt="-", label="Input Signal Spectrum")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Magnitude")
+plt.legend()
+plt.title("Frequency Spectrum with Harmonic and Intermodulation Distortion")
+plt.grid()
+plt.tight_layout()
+plt.show()

@@ -1,0 +1,32 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from control import TransferFunction, bode_plot, margin
+
+# 一次遅れ系アンプの伝達関数のパラメータ
+K = 10       # 増幅率（ゲイン）
+tau = 0.1    # 時定数
+
+# 伝達関数 G(s) = K / (τs + 1)
+num = [K]
+den = [tau, 1]
+
+# 伝達関数の定義
+G = TransferFunction(num, den)
+
+# 位相余裕と利得余裕の計算
+gm, pm, wg, wp = margin(G)
+
+# 結果の表示
+print("利得余裕 (Gain Margin):", gm, "倍")
+print("位相余裕 (Phase Margin):", pm, "度")
+print("利得交差周波数 (Gain Crossover Frequency):", wg, "rad/s")
+print("位相交差周波数 (Phase Crossover Frequency):", wp, "rad/s")
+
+# Bodeプロットの作成
+plt.figure(figsize=(12, 8))
+bode_plot(G, dB=True, Hz=False, deg=True)
+
+# プロットの表示
+plt.suptitle("Bode Plot of First-Order Amplifier")
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.show()

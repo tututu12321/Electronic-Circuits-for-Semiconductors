@@ -1,6 +1,4 @@
-以下は、英語と日本語で書かれたREADMEファイルの内容です。
 
----
 
 # Electronic Circuits for Semiconductors
 

@@ -1,0 +1,42 @@
+import numpy as np
+
+def calculate_voltage_gain(Vi, gm, rp, RL):
+    """
+    Calculate the voltage gain and output voltage.
+
+    Parameters:
+    Vi : float : Input voltage (V)
+    gm : float : Transconductance (S)
+    rp : float : Internal resistance (Ohm)
+    RL : float : Load resistance (Ohm)
+
+    Returns:
+    Av : float : Voltage gain
+    Vo : float : Output voltage
+    """
+    # Calculate equivalent resistance
+    r_parallel = 1 / (1 / rp + 1 / RL)
+    
+    # Calculate voltage gain
+    Av = -gm * (rp / r_parallel)
+    
+    # Calculate output voltage
+    Vo = Av * Vi
+    
+    return Av, Vo
+
+# Parameters
+Vi = 1.0  # Input voltage (V)
+gm = 30e-6  # Transconductance (S)
+rp = 400e3  # Internal resistance (Ohm)
+RL = 330e3  # Load resistance (Ohm)
+
+# Calculate gain and output voltage
+Av, Vo = calculate_voltage_gain(Vi, gm, rp, RL)
+
+print(f"Voltage Gain (Av): {Av:.2f} V/V")
+print(f"Output Voltage (Vo): {Vo:.2f} V")
+
+# Reference link for further information
+# 詳細な情報は、以下のリンクをご覧ください:
+# https://www.marutsu.co.jp/sv/files/page/page/MBK6K1/report1.pdf?srsltid=AfmBOorW5PAZb9I06VuPMdJqLCP2D2K8EnArksLDLF8s6_Al-zI1kAM1

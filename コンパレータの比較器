@@ -1,0 +1,32 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の定義
+V_DD = 5.0  # 電源電圧 (例: 5V)
+A = 1000.0  # オペアンプのゲイン
+
+# 入力電圧範囲
+V_in = np.linspace(-10, 10, 1000)  # 入力電圧を -10V から +10V まで生成
+
+# 出力電圧の計算
+V_out = np.where(
+    V_in >= V_DD / A, V_DD,  # V_in が V_DD/A 以上の場合は +V_DD
+    np.where(
+        V_in <= -V_DD / A, -V_DD,  # V_in が -V_DD/A 以下の場合は -V_DD
+        A * V_in  # それ以外は AV_in
+    )
+)
+
+# 結果のプロット
+plt.figure(figsize=(8, 6))
+plt.plot(V_in, V_out, label=r"$V_\mathrm{out}$")
+plt.axhline(V_DD, color="r", linestyle="--", label=r"$+V_\mathrm{DD}$")
+plt.axhline(-V_DD, color="b", linestyle="--", label=r"$-V_\mathrm{DD}$")
+plt.axvline(V_DD / A, color="g", linestyle="--", label=r"$V_\mathrm{DD}/A$")
+plt.axvline(-V_DD / A, color="g", linestyle="--", label=r"$-V_\mathrm{DD}/A$")
+plt.title("Comparator Output Characteristics")
+plt.xlabel(r"$V_\mathrm{in}$ (Input Voltage)")
+plt.ylabel(r"$V_\mathrm{out}$ (Output Voltage)")
+plt.grid()
+plt.legend()
+plt.show()

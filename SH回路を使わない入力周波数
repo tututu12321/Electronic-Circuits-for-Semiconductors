@@ -1,0 +1,40 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数設定
+q = 1  # 例としてq = 1
+N = 10  # Nビットで、例としてN = 10
+f = 1  # 周波数f (Hz)
+
+# 時間軸の設定
+t = np.linspace(0, 1, 1000)  # tの範囲を0から1秒まで設定
+
+# 式2: v(t)の計算
+v_t = q * (2**N / 2) * np.sin(2 * np.pi * f * t)
+
+# 式3: dv(t)/dtの計算
+dv_dt = q * (2**N / 2) * 2 * np.pi * f * np.cos(2 * np.pi * f * t)
+
+# プロット
+plt.figure(figsize=(10, 6))
+
+# v(t)のプロット
+plt.subplot(2, 1, 1)
+plt.plot(t, v_t, label='v(t) = q * (2^N / 2) * sin(2πft)', color='b')
+plt.xlabel('Time (t)')
+plt.ylabel('v(t)')
+plt.title('Voltage v(t) vs Time')
+plt.grid(True)
+plt.legend()
+
+# dv(t)/dtのプロット
+plt.subplot(2, 1, 2)
+plt.plot(t, dv_dt, label='dv(t)/dt = q * (2^N / 2) * 2πf * cos(2πft)', color='r')
+plt.xlabel('Time (t)')
+plt.ylabel('dv(t)/dt')
+plt.title('Time Derivative of Voltage dv(t)/dt vs Time')
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.show()

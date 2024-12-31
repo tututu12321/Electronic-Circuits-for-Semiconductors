@@ -1,0 +1,67 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 初期設定
+target_speed = 100  # 目標速度 (RPM)
+actual_speed = 0  # 初期の実際の速度 (RPM)
+Kp = 0.1  # 比例ゲイン
+time_step = 0.1  # 時間ステップ (秒)
+total_time = 20  # シミュレーションの総時間 (秒)
+time = np.arange(0, total_time, time_step)  # 時間軸
+
+# AD変換設定
+adc_resolution = 8  # AD変換の解像度 (ビット数)
+adc_max_value = 2**adc_resolution - 1  # 最大値 (8ビットの場合255)
+
+# PWM信号の計算
+pwm_signal = []
+speed_values = []
+adc_values = []
+
+# シミュレーション
+for t in time:
+    # 誤差信号（目標速度と実際の速度の差）
+    error = target_speed - actual_speed
+    
+    # PWM信号の計算 (デューティ比)
+    pwm = Kp * error
+    pwm = np.clip(pwm, 0, 1)  # PWM信号は0~1の範囲に制限
+    
+    # 実際の速度（BEMF）の更新
+    actual_speed += pwm * (target_speed - actual_speed) * time_step
+    
+    # AD変換（アナログ速度をデジタル値に変換）
+    adc_value = int(np.clip(actual_speed, 0, target_speed) / target_speed * adc_max_value)
+    
+    # 結果を保存
+    pwm_signal.append(pwm)
+    speed_values.append(actual_speed)
+    adc_values.append(adc_value)
+
+# 結果のプロット
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 8))
+
+# 実際の速度（BEMF）のプロット
+ax1.plot(time, speed_values, label='Actual Speed (RPM)', color='blue')
+ax1.axhline(target_speed, color='red', linestyle='--', label='Target Speed (100 RPM)')
+ax1.set_xlabel('Time (s)')
+ax1.set_ylabel('Speed (RPM)')
+ax1.set_title('Actual Speed vs Time')
+ax1.legend()
+
+# PWM信号のプロット
+ax2.plot(time, pwm_signal, label='PWM Signal (Duty Cycle)', color='green')
+ax2.set_xlabel('Time (s)')
+ax2.set_ylabel('PWM Duty Cycle')
+ax2.set_title('PWM Signal vs Time')
+ax2.legend()
+
+# AD変換後のデジタル値のプロット
+ax3.plot(time, adc_values, label='ADC Value (Digital)', color='orange')
+ax3.set_xlabel('Time (s)')
+ax3.set_ylabel('ADC Value')
+ax3.set_title('ADC Value vs Time')
+ax3.legend()
+
+plt.tight_layout()
+plt.show()

@@ -1,0 +1,80 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 時間の設定
+t = np.linspace(0, 1, 1000)  # 1秒間
+f = 50  # 基本周波数
+
+# 1. 熱ノイズ (Johnson-Nyquist Noise)
+# 熱ノイズはランダムなノイズとしてモデル化され、白色ノイズとして表現できます。
+thermal_noise = np.random.normal(0, 0.1, len(t))  # 平均0、標準偏差0.1の正規分布
+
+# 2. ショットノイズ
+# ショットノイズもランダムであり、電流の移動によるノイズ。
+shot_noise = np.random.poisson(5, len(t)) - 5  # ポアソン分布（平均値5）
+
+# 3. EMI (Electromagnetic Interference)
+# EMIは通常、高周波数のノイズとしてモデリングできます。ここでは50Hz信号に加算します。
+emi_noise = 0.5 * np.sin(2 * np.pi * 1000 * t)  # 1kHzのEMI
+
+# 4. RFI (Radio Frequency Interference)
+# RFIはさらに高い周波数で、ここでは5kHzのラジオ波としてモデリングします。
+rfi_noise = 0.3 * np.sin(2 * np.pi * 5000 * t)  # 5kHzのRFI
+
+# 合成ノイズ（全てのノイズを合成）
+total_noise = thermal_noise + shot_noise + emi_noise + rfi_noise
+
+# ノイズ対策（シールドとグラウンド）
+# シールドは、一定の周波数帯域を除去すると仮定して高周波数ノイズを減衰
+shielded_noise = total_noise * (np.abs(np.sin(2 * np.pi * 1000 * t)) < 0.5)  # シールド後のノイズ（1kHz以上減衰）
+
+# グラウンドによるノイズ低減（低周波ノイズを減少させる）
+grounded_noise = total_noise - np.sin(2 * np.pi * 50 * t)  # 50Hzのノイズを除去（グラウンド効果）
+
+# プロット
+plt.figure(figsize=(12, 12))
+
+# 1. 熱ノイズ
+plt.subplot(5, 1, 1)
+plt.plot(t, thermal_noise, label="Thermal Noise (Johnson-Nyquist)", color='blue')
+plt.title("Thermal Noise (Johnson-Nyquist)")
+plt.xlabel("Time [s]")
+plt.ylabel("Amplitude")
+plt.legend()
+
+# 2. ショットノイズ
+plt.subplot(5, 1, 2)
+plt.plot(t, shot_noise, label="Shot Noise", color='green')
+plt.title("Shot Noise")
+plt.xlabel("Time [s]")
+plt.ylabel("Amplitude")
+plt.legend()
+
+# 3. EMI (Electromagnetic Interference)
+plt.subplot(5, 1, 3)
+plt.plot(t, emi_noise, label="EMI (Electromagnetic Interference)", color='red')
+plt.title("EMI (Electromagnetic Interference)")
+plt.xlabel("Time [s]")
+plt.ylabel("Amplitude")
+plt.legend()
+
+# 4. RFI (Radio Frequency Interference)
+plt.subplot(5, 1, 4)
+plt.plot(t, rfi_noise, label="RFI (Radio Frequency Interference)", color='purple')
+plt.title("RFI (Radio Frequency Interference)")
+plt.xlabel("Time [s]")
+plt.ylabel("Amplitude")
+plt.legend()
+
+# 5. 合成ノイズとノイズ対策
+plt.subplot(5, 1, 5)
+plt.plot(t, total_noise, label="Total Noise (Before Shielding and Grounding)", color='black', linestyle='--')
+plt.plot(t, shielded_noise, label="Shielded Noise", color='orange')
+plt.plot(t, grounded_noise, label="Grounded Noise", color='brown')
+plt.title("Total Noise and Countermeasures (Shielding & Grounding)")
+plt.xlabel("Time [s]")
+plt.ylabel("Amplitude")
+plt.legend()
+
+plt.tight_layout()
+plt.show()

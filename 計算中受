@@ -1,0 +1,22 @@
+def calculate_current(cross_section_area, length, constant=30):
+    """
+    断面積 (mm²) と長さ (cm) を入力し、電流 (mA) を計算する関数。
+    
+    Parameters:
+    cross_section_area (float): 断面積 (mm²)
+    length (float): 長さ (cm)
+    constant (float): 定数（デフォルトは30）
+    
+    Returns:
+    float: 電流 (mA)
+    """
+    # 計算式
+    current = (cross_section_area / length) * constant
+    return current
+
+# 例: 断面積 10 mm²、長さ 2 cm の場合
+cross_section_area = 10  # mm²
+length = 2  # cm
+
+current = calculate_current(cross_section_area, length)
+print(f"電流: {current:.2f} mA")

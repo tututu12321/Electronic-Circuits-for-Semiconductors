@@ -1,0 +1,55 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define constants for the equations
+mu = 1e-3  # mobility (just a representative value for plotting)
+Cox = 1e-6  # oxide capacitance (representative value for plotting)
+W = 10e-6  # width in meters
+L = 1e-6  # length in meters
+
+# Define the range for variables
+Vov = np.linspace(0.01, 2, 100)  # Overdrive voltage range for the first two equations
+Id = np.linspace(1e-6, 1e-3, 100)  # ID range for the third equation
+
+# Equation 1: gm1 = μ * Cox * (W/L) * Vov
+gm1 = mu * Cox * (W / L) * Vov
+
+# Equation 2: gm2 = 2 * ID / Vov
+ID = 1e-3  # Assume a constant ID for the second equation
+gm2 = 2 * ID / Vov
+
+# Equation 3: gm3 = sqrt(2 * μ * Cox * ID)
+gm3 = np.sqrt(2 * mu * Cox * Id)
+
+# Create separate figures for each equation
+
+# Plot the first equation (gm1 vs Vov)
+fig1, ax1 = plt.subplots(1, 1, figsize=(10, 6))
+ax1.plot(Vov, gm1, label=r'$g_m = \mu C_{ox} \times \frac{W}{L} \times V_{OV}$', color='b')
+ax1.set_xlabel('$V_{OV}$', fontsize=12)
+ax1.set_ylabel('$g_m$', fontsize=12)
+ax1.set_title('Plot of $g_m$ vs $V_{OV}$ (Equation 1)', fontsize=14)
+ax1.legend(loc='best')
+ax1.grid(True)
+
+# Plot the second equation (gm2 vs Vov)
+fig2, ax2 = plt.subplots(1, 1, figsize=(10, 6))
+ax2.plot(Vov, gm2, label=r'$g_m = \frac{2 I_D}{V_{OV}}$', color='g')
+ax2.set_xlabel('$V_{OV}$', fontsize=12)
+ax2.set_ylabel('$g_m$', fontsize=12)
+ax2.set_title('Plot of $g_m$ vs $V_{OV}$ (Equation 2)', fontsize=14)
+ax2.legend(loc='best')
+ax2.grid(True)
+
+# Plot the third equation (gm3 vs Id)
+fig3, ax3 = plt.subplots(1, 1, figsize=(10, 6))
+ax3.plot(Id, gm3, label=r'$g_m = \sqrt{2 \mu C_{ox} \times I_D}$', color='r')
+ax3.set_xlabel('$I_D$', fontsize=12)
+ax3.set_ylabel('$g_m$', fontsize=12)
+ax3.set_title('Plot of $g_m$ vs $I_D$ (Equation 3)', fontsize=14)
+ax3.legend(loc='best')
+ax3.grid(True)
+
+# Show all the plots
+plt.tight_layout()
+plt.show()

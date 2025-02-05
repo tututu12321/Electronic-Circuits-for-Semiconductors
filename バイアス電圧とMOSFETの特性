@@ -1,0 +1,45 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Given parameters
+mu_n = 200e-6  # Process parameter (cm^2/Vs)
+Cox = 3.45e-3  # Gate oxide capacitance (F/m^2)
+W_L = 10  # Width-to-length ratio (W/L)
+Vth = 1  # Threshold voltage (V)
+VA = 10  # Early voltage (V)
+VDD = 5  # Supply voltage (V)
+R = 1000  # Drain resistor (Ohms)
+
+# Define Vin range (horizontal axis) from 0 to 20
+Vin = np.linspace(0, 20, 1000)  # Vin from 0V to 20V
+
+# Calculate IDS using the equation for the drain current
+IDS = mu_n * Cox * (W_L) * (Vin - Vth)**2 * (1 + (VDD / VA))
+
+# Calculate VOUT using the equation VOUT = VDD - R * IDS
+VOUT = VDD - R * IDS
+
+# Plotting
+plt.figure(figsize=(8, 6))
+
+# Plot the output voltage VOUT as a function of Vin
+plt.plot(Vin, VOUT, label=r'$V_{OUT} = V_{DD} - R \cdot I_{DS}$', color='orange')
+
+# Add horizontal line at VDD/2
+plt.axhline(y=VDD / 2, color='blue', linestyle='--', label=r'$V_{DD}/2$')
+
+# Set limits for y-axis (from 0 to VDD)
+plt.ylim(0, VDD)
+
+# Set labels and title
+plt.title('Output Voltage vs Input Voltage')
+plt.xlabel('Input Voltage $V_{in}$ (V)')
+plt.ylabel('Output Voltage $V_{OUT}$ (V)')
+
+# Add grid, legend, and tight layout
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+
+# Show the plot
+plt.show()

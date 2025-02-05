@@ -1,0 +1,84 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import control as ctl
+
+# 定数の設定
+EPSILON_0 = 8.85e-12  # 真空の誘電率 [F/m]
+EPSILON_SIO2 = 3.9    # SiO2 の比誘電率
+TOX = 9.0e-9         # 酸化膜厚 [m]
+COX = (EPSILON_0 * EPSILON_SIO2) / TOX  # ゲート容量 [F/m^2]
+
+UO_N = 350e-4  # 電子の移動度 [m^2/Vs]
+UO_P = 100e-4  # ホールの移動度 [m^2/Vs]
+VTH_N = 0.7    # NMOS しきい値電圧 [V]
+VTH_P = -0.8   # PMOS しきい値電圧 [V]
+L = 0.5e-6     # ゲート長 [m]
+W = 50e-6      # ゲート幅 [m]
+
+beta_N = UO_N * COX * (W/L)
+beta_P = UO_P * COX * (W/L)
+
+# 電流の設定
+Iss = 100e-6
+Vx = 1.72
+I5 = Iss / 2
+I6 = Iss / 4
+
+# トランスコンダクタンス計算
+gm1 = beta_N * (1.5 - VTH_N)
+gm3 = beta_P * (3 - Vx - abs(VTH_P))
+gm5 = 2 * gm3
+gm6 = gm3
+
+# 小信号出力インピーダンス
+lambda_N = 0.1
+lambda_P = 0.2
+ro1 = (1 + lambda_N * Vx) / (lambda_N * I5)
+ro3 = (1 + lambda_P * (3 - Vx)) / (lambda_P * I5)
+ro5 = (1 + lambda_P * (3 - Vx)) / (lambda_P * I6)
+ro7 = (1 + lambda_N * Vx) / (lambda_N * I6)
+
+Ro = 1 / (1/ro5 + 1/ro7)
+
+# ゲイン計算
+Av1 = -gm1 / (gm6)
+Av2 = gm6 / gm3
+Ao = Av1 * Av2
+
+# ゲイン帯域幅計算
+CC = 1e-12  # 補償コンデンサ
+GB = gm1 / CC
+
+# 出力極と右半平面ゼロ
+CL = 1e-12  # 負荷容量
+p2 = -gm6 / CL
+Z1 = gm6 / CC
+
+# Bode 線図の計算
+freqs = np.logspace(1, 9, 1000)
+num = [gm1]
+den = [Ro * CC * CL, CC + CL + (1 + gm5 * Ro) * CC, gm1]
+G_s = ctl.TransferFunction(num, den)
+mag, phase, omega = ctl.bode(G_s, freqs, dB=True, deg=True, plot=False)
+
+# Bode 線図の描画
+plt.figure(figsize=(10, 6))
+plt.subplot(2, 1, 1)
+plt.semilogx(omega, 20 * np.log10(mag), 'b')
+plt.title("Bode Plot")
+plt.ylabel("Gain [dB]")
+plt.grid(which="both", linestyle="--")
+
+plt.subplot(2, 1, 2)
+plt.semilogx(omega, phase, 'r')
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Phase [deg]")
+plt.grid(which="both", linestyle="--")
+
+plt.show()
+
+# 結果表示
+print(f"Open-loop Gain (Ao): {Ao:.2f}")
+print(f"Gain Bandwidth (GB): {GB:.2e} Hz")
+print(f"Output Pole (p2): {p2:.2e} Hz")
+print(f"RHP Zero (Z1): {Z1:.2e} Hz")

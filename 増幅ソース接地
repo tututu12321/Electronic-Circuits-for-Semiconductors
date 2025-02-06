@@ -1,0 +1,33 @@
+# 必要なライブラリをインポート
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータ設定
+mu_Cox = 50e-6  # μCox (移動度×酸化膜容量) [A/V^2]
+L = 1e-6  # チャネル長 [m]
+W = 5e-6  # チャネル幅 [m]
+VA = 20  # 早期電圧 [V]
+R = 10e3  # 負荷抵抗 [Ω]
+VDS = 1.5  # ドレイン-ソース電圧 [V]
+
+# IDS の範囲を設定
+IDS_range = np.linspace(1e-6, 1e-3, 100)  # ドレイン電流 [A]
+
+# 増幅率 Av の計算
+numerator = np.sqrt(2 * mu_Cox * (W / L) * IDS_range * (1 + VDS / VA))  # 分子
+denominator = 1 + (R * IDS_range / VA)  # 分母
+Av = -R * (numerator / denominator)  # 増幅率
+
+# プロット
+plt.figure(figsize=(8, 6))
+plt.plot(IDS_range * 1e6, Av, label=r'$A_v = - R \frac{\sqrt{2\mu C_{ox} \frac{W}{L} I_{DS} (1 + \frac{V_{DS}}{V_A})}}{1 + \frac{R I_{DS}}{V_A}}$', color='blue')
+
+# 軸ラベルとタイトル
+plt.xlabel("IDS (µA)")
+plt.ylabel("Av (Gain)")
+plt.title("Voltage Gain vs Drain Current")
+plt.grid()
+plt.legend()
+
+# グラフを表示
+plt.show()

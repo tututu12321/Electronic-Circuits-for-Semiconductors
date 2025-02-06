@@ -1,0 +1,40 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# NAND回路のロジスティック近似関数
+def nand_logic(Vin1, Vin2, Vdd=5, Vth=2.5, gain=10):
+    term1 = 1 / (1 + np.exp(-gain * (Vth - Vin1)))  # Vin1の影響
+    term2 = 1 / (1 + np.exp(-gain * (Vth - Vin2)))  # Vin2の影響
+    return Vdd * (1 - term1 * term2)  # NANDの特性を正しく反映
+
+# パラメータ設定
+Vdd = 5         # 電源電圧
+Vth = 2.5       # しきい値電圧
+gain = 10       # ゲイン
+
+# 入力電圧範囲を作成
+Vin = np.linspace(0, 5, 100)  # 0V から 5V までの範囲
+
+# 3Dプロット用のグリッド作成
+Vin1, Vin2 = np.meshgrid(Vin, Vin)
+
+# (Vth, Vth) を中心に 180度回転
+Vin1_rot = 2 * Vth - Vin1
+Vin2_rot = 2 * Vth - Vin2
+
+# 各出力の計算（回転後の入力を使用）
+Vout = nand_logic(Vin1_rot, Vin2_rot, Vdd, Vth, gain)
+
+# 3Dプロット
+fig = plt.figure(figsize=(8, 6))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(Vin1, Vin2, Vout, cmap="viridis", edgecolor='k', alpha=0.8)
+
+# 軸ラベルとタイトル
+ax.set_xlabel("Vin1 (V)")
+ax.set_ylabel("Vin2 (V)")
+ax.set_zlabel("Vout (V)")
+ax.set_title("CMOS NAND Gate Output (180° Rotated at (Vth, Vth))")
+
+plt.show()

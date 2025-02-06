@@ -1,0 +1,80 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータの設定
+mu_Cox = 50e-6  # μCox (移動度×酸化膜容量) [A/V^2]
+L = 1e-6  # チャネル長 [m]
+Vth = 0.7  # 閾値電圧 [V]
+ID_range = np.linspace(1e-6, 1e-3, 100)  # ドレイン電流 [A]
+W_range = np.linspace(1e-6, 10e-6, 100)  # チャネル幅 [m]
+VGS_range = np.linspace(0.8, 2.0, 100)  # ゲート-ソース電圧 [V]
+VGS_minus_Vth_range = np.linspace(0.1, 2.0, 100)  # VGS - Vth の範囲
+
+# gm1: 横軸 W
+gm1 = mu_Cox * (W_range / L) * (1.2 - Vth)  # VGS = 1.2V の固定値
+
+# gm2: 横軸 VGS
+W_fixed = 5e-6  # W = 5μm の固定値
+gm2 = mu_Cox * (W_fixed / L) * (VGS_range - Vth)
+
+# gm3: 横軸 ID
+VGS_fixed = 1.5  # VGS = 1.5V の固定値
+gm3 = 2 * ID_range / (VGS_fixed - Vth)
+
+# gm4: 横軸 ID
+gm4 = np.sqrt(2 * mu_Cox * ID_range)
+
+# gm5: 横軸 (VGS - Vth)
+ID_fixed = 100e-6  # ID = 100µA の固定値
+gm5 = 2 * ID_fixed / VGS_minus_Vth_range
+
+# グラフの描画
+plt.figure(figsize=(12, 10))
+
+# gm1 vs W
+plt.subplot(2, 3, 1)
+plt.plot(W_range * 1e6, gm1 * 1e3, label=r'$g_{m1} = \mu C_{ox} \frac{W}{L} (V_{GS} - V_{th})$')
+plt.xlabel("W (µm)")
+plt.ylabel("gm1 (mS)")
+plt.title("gm1 vs W")
+plt.grid()
+plt.legend()
+
+# gm2 vs VGS
+plt.subplot(2, 3, 2)
+plt.plot(VGS_range, gm2 * 1e3, label=r'$g_{m2} = \mu C_{ox} \frac{W}{L} (V_{GS} - V_{th})$')
+plt.xlabel("VGS (V)")
+plt.ylabel("gm2 (mS)")
+plt.title("gm2 vs VGS")
+plt.grid()
+plt.legend()
+
+# gm3 vs ID
+plt.subplot(2, 3, 3)
+plt.plot(ID_range * 1e6, gm3 * 1e3, label=r'$g_{m3} = \frac{2I_D}{V_{GS} - V_{th}}$')
+plt.xlabel("ID (µA)")
+plt.ylabel("gm3 (mS)")
+plt.title("gm3 vs ID")
+plt.grid()
+plt.legend()
+
+# gm4 vs ID
+plt.subplot(2, 3, 4)
+plt.plot(ID_range * 1e6, gm4 * 1e3, label=r'$g_{m4} = \sqrt{2\mu C_{ox} I_D}$')
+plt.xlabel("ID (µA)")
+plt.ylabel("gm4 (mS)")
+plt.title("gm4 vs ID")
+plt.grid()
+plt.legend()
+
+# gm5 vs (VGS - Vth)
+plt.subplot(2, 3, 5)
+plt.plot(VGS_minus_Vth_range, gm5 * 1e3, label=r'$g_{m5} = \frac{2I_D}{V_{GS} - V_{th}}$')
+plt.xlabel("VGS - Vth (V)")
+plt.ylabel("gm5 (mS)")
+plt.title("gm5 vs (VGS - Vth)")
+plt.grid()
+plt.legend()
+
+plt.tight_layout()
+plt.show()

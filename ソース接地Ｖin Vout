@@ -1,0 +1,35 @@
+# 必要なライブラリをインポート
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータ設定
+mu_Cox = 50e-6  # μCox (移動度×酸化膜容量) [A/V^2]
+L = 1e-6  # チャネル長 [m]
+W = 5e-6  # チャネル幅 [m]
+Vth = 0.7  # 閾値電圧 [V]
+VA = 20  # 早期電圧 [V]
+VDD = 5.0  # 電源電圧 [V]
+R = 10e3  # 負荷抵抗 [Ω]
+
+# Vinの範囲を設定
+Vin_range = np.linspace(0.8, 2.0, 100)  # Vin の範囲
+
+# IDS の計算
+IDS = (mu_Cox / 2) * ((W / L) * (Vin_range - Vth) ** 2) * (1 + VDD / VA)
+
+# Vout の計算
+Vout = VDD - R * IDS
+
+# プロット
+plt.figure(figsize=(8, 6))
+plt.plot(Vin_range, Vout, label=r'$V_{out} = V_{DD} - R I_{DS}$', color='blue')
+
+# 軸ラベルとタイトル
+plt.xlabel("Vin (V)")
+plt.ylabel("Vout (V)")
+plt.title("Vout vs Vin")
+plt.grid()
+plt.legend()
+
+# グラフを表示
+plt.show()

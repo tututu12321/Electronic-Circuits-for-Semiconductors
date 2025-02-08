@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータ設定
+C_dd_n = 2e-15  # NMOSの出力側ドレイン容量 (F)
+C_dd_p = 2e-15  # PMOSの出力側ドレイン容量 (F)
+C_gg_n = 1e-15  # NMOSの入力側ゲート容量 (F)
+C_gg_p = 1e-15  # PMOSの入力側ゲート容量 (F)
+R_n = 5e3  # NMOSのオン抵抗 (Ω)
+R_p = 7e3  # PMOSのオン抵抗 (Ω)
+
+# 遅延時間の計算
+t_pHL = 0.75 * (C_dd_n + C_dd_p + C_gg_n + C_gg_p) * R_n
+t_pLH = 0.75 * (C_dd_n + C_dd_p + C_gg_n + C_gg_p) * R_p
+
+# クロック信号の生成
+t = np.linspace(0, 100e-9, 1000)  # 100nsの時間範囲
+clock_input = 0.5 * (1 + np.sign(np.sin(2 * np.pi * 10e6 * t)))  # 10MHzのクロック信号
+
+# NOT回路の出力信号（遅延を考慮）
+output_pHL = np.roll(1 - clock_input, int(t_pHL / (t[1] - t[0])))
+output_pLH = np.roll(1 - clock_input, int(t_pLH / (t[1] - t[0])))
+
+# プロット
+plt.figure(figsize=(8, 5))
+plt.plot(t * 1e9, clock_input, label="Input Clock Signal", linestyle='dashed')
+plt.plot(t * 1e9, output_pHL, label=f"NOT Output (t_pHL = {t_pHL*1e9:.2f} ns)")
+plt.plot(t * 1e9, output_pLH, label=f"NOT Output (t_pLH = {t_pLH*1e9:.2f} ns)")
+plt.xlabel("Time (ns)")
+plt.ylabel("Voltage (V)")
+plt.title("NOT Gate Delay Simulation")
+plt.legend()
+plt.grid()
+plt.show()
+
+# 計算結果出力
+print("\n### 遅延時間の計算結果 ###")
+print(f"t_pHL = {t_pHL * 1e9:.2f} ns")
+print(f"t_pLH = {t_pLH * 1e9:.2f} ns")

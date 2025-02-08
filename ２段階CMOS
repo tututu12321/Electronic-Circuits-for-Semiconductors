@@ -1,0 +1,69 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.signal as signal
+
+# パラメータ設定
+gm1 = 1e-3  # S
+gm6 = 5e-3  # S
+ro2 = 100e3  # Ω
+ro4 = 100e3  # Ω
+ro6 = 50e3   # Ω
+ro7 = 50e3   # Ω
+Cc = 1e-12   # F
+Cgs6 = 2e-12 # F
+CL = 5e-12   # F
+Rc = 1 / gm6  # RHPゼロを補償する抵抗
+
+# Rc の値が 1/gm6 と等しい場合の回避策
+denom = 1 - gm6 * Rc
+if np.isclose(denom, 0):
+    denom = 1e-9  # 非ゼロの小さい値に置き換える
+
+# ゲイン K の計算
+K = gm1 * ((ro2 * ro4) / (ro2 + ro4)) * gm6 * ((ro6 * ro7) / (ro6 + ro7))
+K_dB = 20 * np.log10(K)  # デシベル表記
+
+# 極 (ポール) の計算
+wp1 = 1 / (((ro2 * ro4) / (ro2 + ro4)) * gm6 * ((ro6 * ro7) / (ro6 + ro7)) * Cc)
+wp2 = (gm6 * Cc) / (Cgs6 * CL + Cc * (Cgs6 + CL))
+
+# 修正されたゼロの計算 (RHPゼロの補償)
+wz = - (gm6 / Cc) * (1 / denom)
+
+# 伝達関数の作成
+num = [K, K * wz]  # 分子
+den = [1, wp1 + wp2, wp1 * wp2]  # 分母
+sys = signal.TransferFunction(num, den)
+
+# 周波数応答プロット
+w, mag, phase = signal.bode(sys)
+
+plt.figure(figsize=(10, 6))
+
+# ゲインプロット
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag, label="Magnitude")
+plt.xlabel("Frequency (rad/s)")
+plt.ylabel("Magnitude (dB)")
+plt.title("Bode Plot of the Transfer Function with Compensation")
+plt.grid(True)
+plt.legend()
+
+# 位相プロット
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase, label="Phase", color='r')
+plt.xlabel("Frequency (rad/s)")
+plt.ylabel("Phase (degrees)")
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+# 計算結果出力
+print("\n### 計算結果 ###")
+print(f"K = {K:.2e} (linear), {K_dB:.2f} dB")
+print(f"wp1 = {wp1:.2e} rad/s")
+print(f"wp2 = {wp2:.2e} rad/s")
+print(f"wz = {wz:.2e} rad/s (Compensated Zero)")
+print(f"Rc = {Rc:.2e} Ω (Compensation Resistor)")

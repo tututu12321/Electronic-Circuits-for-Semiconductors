@@ -1,0 +1,49 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータ設定
+g_m = 5e-3  # トランスコンダクタンス (S)
+r_o = 10e3  # 出力抵抗 (Ω)
+R = 10e3    # 負荷抵抗 (Ω)
+g_mb = 0.5e-3  # バルク効果 (S)
+
+# 1. ソース接地回路 (Common-Source, CS)
+Av_cs = -g_m * (r_o * R) / (r_o + R)
+Zin_cs = np.inf  # 理想的には無限大
+Zout_cs = (R * r_o) / (R + r_o)
+
+# 2. ドレイン接地回路 (Common-Drain, CD, ソースフォロワー)
+Av_cd = 1 / (1 + (1 / (g_m * (r_o * R) / (r_o + R))) + (g_mb / g_m))
+Zin_cd = np.inf  # 理想的には無限大
+Zout_cd = 1 / (g_m + g_mb)
+
+# 3. ゲート接地回路 (Common-Gate, CG)
+Av_cg = (g_m + g_mb + (1 / r_o)) * (R * r_o) / (R + r_o)
+Zin_cg = (R + r_o) / (1 + g_m * r_o + g_mb * r_o)  # **修正**
+Zout_cg = (R * r_o) / (R + r_o)  # **修正**
+
+# パラメータ変化のプロット用
+gm_values = np.linspace(1e-3, 10e-3, 100)  # g_m を可変
+Av_cs_values = -gm_values * (r_o * R) / (r_o + R)
+Av_cd_values = 1 / (1 + (1 / (gm_values * (r_o * R) / (r_o + R))) + (g_mb / gm_values))
+Av_cg_values = (gm_values + g_mb + (1 / r_o)) * (R * r_o) / (R + r_o)
+
+# プロット
+plt.figure(figsize=(10, 6))
+
+plt.plot(gm_values * 1e3, Av_cs_values, label="Common-Source (CS)", color="red")
+plt.plot(gm_values * 1e3, Av_cd_values, label="Common-Drain (CD)", color="blue")
+plt.plot(gm_values * 1e3, Av_cg_values, label="Common-Gate (CG)", color="green")
+
+plt.xlabel("Transconductance $g_m$ (mS)")
+plt.ylabel("Voltage Gain $A_v$")
+plt.title("Voltage Gain vs. Transconductance")
+plt.legend()
+plt.grid()
+plt.show()
+
+# インピーダンス値の表示
+print("### Calculated Values ###")
+print(f"Common-Source: Av = {Av_cs:.2f}, Zin = {Zin_cs}, Zout = {Zout_cs:.2f}")
+print(f"Common-Drain: Av = {Av_cd:.2f}, Zin = {Zin_cd}, Zout = {Zout_cd:.2f}")
+print(f"Common-Gate: Av = {Av_cg:.2f}, Zin = {Zin_cg:.2f}, Zout = {Zout_cg:.2f}")  # **修正後**

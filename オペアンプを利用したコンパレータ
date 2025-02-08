@@ -1,0 +1,31 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータ設定
+V_DD = 5  # 電源電圧 (V)
+A = 200      # 増幅率
+T = 2 * np.pi  # 1周期
+
+# 入力信号（サイン波）
+t = np.linspace(0, T, 1000)  # 時間軸
+V_in =  5* np.sin(t)  # 振幅Vのサイン波
+
+# 出力信号の計算
+V_out = np.piecewise(V_in, 
+                      [V_in >= V_DD/A, 
+                       (V_in < V_DD/A) & (V_in >= -V_DD/A), 
+                       V_in < -V_DD/A],
+                      [V_DD, lambda x: A*x, -V_DD])
+
+# プロット
+plt.figure(figsize=(8, 5))
+plt.plot(t, V_in, label="Input: $V_{in}$ (Sine Wave)", linestyle='dashed')
+plt.plot(t, V_out, label="Output: $V_{out}$", linewidth=2)
+plt.axhline(V_DD, color='gray', linestyle='dotted', label="$\pm V_{DD}$")
+plt.axhline(-V_DD, color='gray', linestyle='dotted')
+plt.xlabel("Time")
+plt.ylabel("Voltage (V)")
+plt.title("Saturated Amplifier Response")
+plt.legend()
+plt.grid()
+plt.show()

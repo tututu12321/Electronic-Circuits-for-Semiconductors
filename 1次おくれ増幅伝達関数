@@ -1,0 +1,61 @@
+# 必要なライブラリのインポート
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータ設定
+g_m = 10e-3  # トランスコンダクタンス (S)
+r_o1 = 50e3  # 出力抵抗1 (Ω)
+r_o2 = 40e3  # 出力抵抗2 (Ω)
+
+# 並列合成抵抗の計算
+R_out_eff = 1 / (1 / r_o1 + 1 / r_o2)  # 並列合成
+
+# 極の周波数設定
+omega_p0 = 1e6  # 1 MHz (rad/s)
+
+# 増幅率（リニアスケール）
+A_0 = g_m * R_out_eff  # DCゲイン (ω → 0 のときのゲイン)
+
+# 増幅率のデシベル換算
+A_0_dB = 20 * np.log10(A_0)
+
+# 周波数範囲の設定
+omega = np.logspace(3, 8, 1000)  # 1 kHz ～ 100 MHz
+
+# A(ω) の計算（ゲインの複素数表現）
+A_omega = (-g_m * R_out_eff) / (1 + 1j * (omega / omega_p0))
+
+# 振幅特性（dBスケール）
+A_dB = 20 * np.log10(np.abs(A_omega))
+
+# 位相特性
+phase = np.angle(A_omega, deg=True)
+
+# Bodeプロットの作成
+fig, axs = plt.subplots(2, 1, figsize=(8, 6))
+
+# 振幅特性プロット
+axs[0].semilogx(omega, A_dB, label="Gain |A(ω)| (dB)", color="blue")
+axs[0].set_ylabel("Gain (dB)")
+axs[0].set_title("Bode Plot of A(ω)")
+axs[0].grid(which="both")
+axs[0].legend()
+
+# 位相特性プロット
+axs[1].semilogx(omega, phase, label="Phase of A(ω) (degrees)", color="red")
+axs[1].set_xlabel("Frequency (rad/s)")
+axs[1].set_ylabel("Phase (degrees)")
+axs[1].grid(which="both")
+axs[1].legend()
+
+# グラフの表示
+plt.tight_layout()
+plt.show()
+
+# 計算結果の表示（増幅率とdBを含む）
+print("=== Amplifier Parameters ===")
+print(f"g_m  (S): {g_m:.6f}")
+print(f"R_out_eff  (Ω): {R_out_eff:.2f}")
+print(f"A_0  (Linear Gain): {A_0:.2f}")
+print(f"A_0  (Gain in dB): {A_0_dB:.2f} dB")
+print(f"ω_p0 (rad/s): {omega_p0:.2e}")

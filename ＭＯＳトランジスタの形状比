@@ -1,0 +1,23 @@
+import numpy as np
+
+# MOSFETパラメータ
+Ids = 100e-6  # 設計電流 (A)
+Veff = 0.15   # 有効ゲート電圧 (V)
+L = 1e-7  # 設定するチャネル長 (L)
+W_L_prev = 5  # 事前に決定された (W/L)
+Vgs_prev = 0.7  # 事前のVgs
+Vth = 0.42  # しきい値電圧 (V)
+Ids_prev = 47.6e-6  # 事前のIds
+
+# uCoxの計算（シミュレーション結果から抽出）
+uCox = (2 * Ids_prev) / (W_L_prev * (Vgs_prev - Vth) ** 2)
+
+# 設計値 (W/L) の計算
+W_L_new = (2 * Ids) / (uCox * Veff ** 2)
+
+# W の計算
+W_new = W_L_new * L
+
+print(f"Extracted uCox: {uCox:.2e} A/V²")
+print(f"Calculated (W/L): {W_L_new:.2f}")
+print(f"Calculated W: {W_new * 1e6:.2f} ")

@@ -1,0 +1,78 @@
+
+# ===============================
+# 必要なライブラリをインポート
+# ===============================
+import os
+import time
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ===============================
+# 1. パラメータ設定
+# ===============================
+
+path = r"sample.vcsv_out.csv"  # 入力データ（ADCの出力CSV）
+
+N = 256        # サンプリング点数（FFT解析用）
+fs = 20e3      # サンプリング周波数 [Hz]
+
+# ADC分解能（ビット数）
+bit = 16
+Ts = 1 / fs  # サンプリング周期
+t = np.arange(0, N * Ts, Ts)  # 時間軸
+fn = np.fft.fftfreq(N, Ts)[:N // 2]  # 周波数軸（通常のFFT）
+
+# ===============================
+# 2. ADCデータの読み込み
+# ===============================
+D = np.loadtxt(path, usecols=range(bit), delimiter=",", dtype="int")  # CSVからADCデータを読み込み
+sample = 2 * D[:N] - 1  # ADCデータを-1～1の範囲に正規化
+del D  # 不要なデータを削除してメモリを節約
+
+# ===============================
+# 3. 通常のFFTを適用
+# ===============================
+
+# FFT変換
+F = np.fft.fft(sample) / N
+P = (F * np.conj(F)).real  # パワースペクトル（実数部）
+
+# 信号成分（最大成分）を抽出
+Signal = np.max(P[1:N//2])
+
+# SNDR（信号対雑音歪比）を計算
+Noise = np.sum(P[1:N//2]) - Signal  # 信号成分を除いた雑音成分
+SNDR = 10 * np.log10(Signal / Noise)  # SNDR計算
+
+# ENOB（有効ビット数）を計算
+ENOB = (SNDR - 1.76) / 6.02
+
+# ===============================
+# 4. グラフの描画（通常のFFT結果をプロット）
+# ===============================
+
+# **時間波形のプロット**
+plt.figure(figsize=(10, 4))
+plt.title("時間波形 (N={})".format(N), fontname="MS Gothic")
+plt.xlabel("時間 [ms]", fontname="MS Gothic")
+plt.ylabel("電圧 [V]", fontname="MS Gothic")
+plt.grid(True)
+plt.plot(t * 1e3, sample, drawstyle="steps-post")  # 時間をミリ秒単位に変換
+plt.show()
+
+# **FFTのパワースペクトルをプロット**
+P_dB = 10 * np.log10(P[:N//2])  # dB単位に変換
+
+plt.figure(figsize=(10, 4))
+plt.title("FFT パワースペクトル (N={})".format(N), fontname="MS Gothic")
+plt.xlabel("周波数 [Hz]", fontname="MS Gothic")
+plt.ylabel("Power [dB]", fontname="MS Gothic")
+plt.grid(True)
+plt.plot(fn, P_dB)
+plt.text(fs/10, max(P_dB)-10, "SNDR = {:.2f} dB".format(SNDR), size=10)
+plt.text(fs/10, max(P_dB)-20, "ENOB = {:.2f} bit".format(ENOB), size=10)
+plt.show()
+
+# **結果の表示**
+print("SNDR: {:.2f} dB".format(SNDR))
+print("ENOB: {:.2f} bit".format(ENOB))

@@ -1,0 +1,27 @@
+# 必要なライブラリをインストール
+!pip install control
+
+# ライブラリを再インポート
+import numpy as np
+import matplotlib.pyplot as plt
+import control as ctrl
+
+# パラメータ設定
+K = 1       # ゲイン
+T = 0.1     # 時定数 [s]
+CF = 1e-6   # フィードバック側のキャパシタ [F]
+CS = 1e-6   # フィードフォワード側のキャパシタ [F]
+
+# 伝達関数 A(s) = K / (Ts + 1)
+A_s = ctrl.tf([K], [T, 1])
+
+# ループゲイン G(s) = (CF / CS) * A(s)
+loop_gain = (CF / CS) * A_s
+
+# クローズドループ伝達関数 H(s) = A(s) / (1 + (CF/CS) * A(s))
+H_s = A_s / (1 + loop_gain)
+
+# ボード線図をプロット
+plt.figure(figsize=(10, 6))
+ctrl.bode_plot(H_s, dB=True, Hz=True, omega_limits=(1, 1e4))
+plt.show()

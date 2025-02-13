@@ -1,0 +1,131 @@
+# ===============================
+# 必要なライブラリをインポート
+# ===============================
+import os
+import time
+import numpy as np
+import matplotlib.pyplot as plt
+import ADC_evaluation_tools  # ADC評価ツールの外部ライブラリ
+
+# ===============================
+# 1. パラメータ設定
+# ===============================
+
+path = r"sample.vcsv_out.csv"  # 入力データ（ADCの出力CSV）
+
+N = 256        # サンプリング点数（FFT解析用）
+fs = 20e3      # サンプリング周波数 [Hz]
+
+# β値探索範囲（βopt推定用）
+beta_sweep_min = 1.60
+beta_sweep_max = 1.80
+beta_sweep_nums = 1000  # 探索点数
+
+# ADC分解能（ビット数）
+bit = 16
+Ts = 1 / fs  # サンプリング周期
+t = np.arange(0, N * Ts, Ts)  # 時間軸
+fn = np.linspace(0, N, N)  # 周波数軸
+beta_sweep = np.linspace(beta_sweep_min, beta_sweep_max, beta_sweep_nums)  # β値の範囲を分割
+
+# ===============================
+# 2. ADCデータの読み込み
+# ===============================
+D = np.loadtxt(path, usecols=range(bit), delimiter=",", dtype="int")  # CSVからADCデータを読み込み
+sample = 2 * D[:N] - 1  # ADCデータを-1～1の範囲に正規化
+del D  # 不要なデータを削除してメモリを節約
+
+# ===============================
+# 3. β値ごとのSNDR計算
+# ===============================
+start = time.time()
+
+# 各β値ごとにSNDRを計算
+weight = np.multiply(beta_sweep - 1, beta_sweep ** np.linspace(-1, -bit, bit).reshape(bit, 1))
+y = np.dot(sample, weight).T  # ADCデータとβによる重み付け計算
+
+# FFT変換
+F = np.fft.rfft(y) * 2 / N
+P = (F * F.conj()).real  # パワースペクトル（実数部）
+Signal = P[:].max(axis=1)  # 最大信号成分
+SNDRs = 10 * np.log10(np.multiply(Signal, (1 / (P[:, 1:int(N / 2)].sum(axis=1) - Signal))))  # SNDR計算
+
+beta_time = time.time() - start
+print("β推定処理時間: {0} 秒".format(beta_time))
+
+# SNDRが最大となるβ値（最適β）を取得
+beta_opt_index = np.argmax(SNDRs)
+beta_opt = beta_sweep[beta_opt_index]
+
+# 最適β値での波形とパワースペクトルを取得
+y = y[beta_opt_index]
+P = P[beta_opt_index]
+
+# ===============================
+# 4. SNDRとENOBの計算
+# ===============================
+SNDR = SNDRs[beta_opt_index]  # SNDR（最適β値）
+offset = sum(y) / N  # オフセット補正
+y -= offset  # オフセットを引く
+P_dB = 10 * np.log10(P / Signal[beta_opt_index])  # dB単位のパワースペクトル
+
+# 有効ビット数（ENOB）の計算
+ENOB = (SNDR - 1.76) / 6.02
+
+# ===============================
+# 5. 1/fノイズ評価
+# ===============================
+P_1f = 0
+j = 1
+for i in fn[1:int(N / 2)] / N:
+    if i < (10 ** -2):  # 低周波領域（1/fノイズ）の計算
+        P_1f += P[j] - 10 ** (-11)
+        j += 1
+
+print("1/fノイズ対信号比: {:.2f} dB".format(10 * np.log10(P_1f / Signal[beta_opt_index])))
+print("1/fノイズ対全雑音比: {:.2f} dB".format(10 * np.log10(P_1f / (np.sum(P[1:N // 2]) - Signal[beta_opt_index]))))
+
+# ===============================
+# 6. グラフの描画
+# ===============================
+def save_fig(fig, dir_path, fig_name):
+    """グラフを保存する関数"""
+    if not os.path.isdir(dir_path + "\\eps"):
+        os.makedirs(dir_path + "\\eps")
+    fig.savefig(dir_path + "\\eps\\" + fig_name + ".eps")
+    fig.savefig(dir_path + "\\" + fig_name + ".png")
+
+# **時間波形のプロット**
+fig = plt.figure()
+plt.title("FFT用に正規化された再生波(N=" + str(N) + ")", fontname="MS Gothic")
+plt.xlabel("時間 [ms]", fontname="MS Gothic")
+plt.ylabel("電圧 [V]", fontname="MS Gothic")
+plt.ylim(-1, 1)
+plt.grid(True)
+plt.plot(t / 10 ** (-3), y, drawstyle="steps-post")
+save_fig(fig, os.getcwd() + "\\temp", "再生波")
+
+# **パワースペクトルのプロット**
+fig = plt.figure()
+plt.title("再生波のパワースペクトル(N=" + str(N) + ")", fontname="MS Gothic")
+plt.xlabel("正規化周波数 (f/fs)", fontname="MS Gothic")
+plt.ylabel("Power [dB]", fontname="MS Gothic")
+plt.text(0.3, -10, "SNDR = {:.2f} dB".format(SNDR), size=10)
+plt.text(0.3, -20, "ENOB = {:.2f} bit".format(ENOB), size=10)
+plt.text(0.3, -30, "βopt = {:.6f}".format(beta_opt), size=10)
+plt.ylim(-170, 10)
+plt.grid(True)
+plt.plot(fn[1:int(N / 2)] / N, P_dB[1:int(N / 2)])
+save_fig(fig, os.getcwd() + "\\temp", "パワースペクトル")
+
+# **β値とSNDRの関係**
+fig = plt.figure()
+plt.title("β値とSNDRの関係(N=" + str(N) + ")", fontname="MS Gothic")
+plt.xlabel("β", fontname="MS Gothic")
+plt.ylabel("SNDR [dB]", fontname="MS Gothic")
+plt.axvline(x=beta_opt, color="r", linestyle="dashed")
+plt.grid(True)
+plt.plot(beta_sweep, SNDRs)
+save_fig(fig, os.getcwd() + "\\temp", "β値依存性")
+
+plt.show()

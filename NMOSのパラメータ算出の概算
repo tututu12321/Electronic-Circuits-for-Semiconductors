@@ -1,0 +1,21 @@
+# 与えられた値
+I_d_sat = 2 * 10**-6  # ドレイン飽和電流 (A)
+V_ov = 0.1  # オーバードライブ電圧 (V)
+W_L = 1800 / 180  # 幅対長さ比(W/L)の比率
+V_gs_V_thn = 0.6  # Vgs - Vthn (V)
+
+# NMOSの電子移動度と酸化物容量の積 (mu_n * C_ox) を計算
+mu_n_C_ox = I_d_sat / (W_L * V_ov**2)
+
+# 出力抵抗r_outを計算
+delta_V_ds = 0.5 - 0.1  # ΔVds (V)
+delta_I_d = 11 * 10**-6 * 10 * 10**6  # ΔId (A)
+r_out = delta_V_ds / delta_I_d  # 出力抵抗 (Ω)
+
+# チャネル長変調係数lambda_nを計算
+lambda_n = 1 / (I_d_sat * r_out)  # チャネル長変調係数 (V^-1)
+
+# 結果を表示
+print("電子移動度と酸化物容量の積 (mu_n * C_ox):", mu_n_C_ox, "[A/V^2]")
+print("出力抵抗 (r_out):", r_out, "[kΩ]")
+print("チャネル長変調係数 (lambda_n):", lambda_n, "[V^-1]")

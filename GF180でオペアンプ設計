@@ -1,0 +1,26 @@
+# 必要なライブラリをインポート
+import numpy as np
+import pandas as pd
+
+# トランジスタ特性データ（ベクトルとして定義）
+parameters = np.array(["V_th (V)", "I_d (A)", "g_m (S)", "r_ds (Ω)", "g_m * r_ds", "g_m * r_ds (dB)"])
+nMOS_vector = np.array([6.30e-01, 1.13e-05, 1.33e-04, 4.44e+06, 0, 0])
+pMOS_vector = np.array([7.20e-01, 1.25e-06, 3.12e-05, 8.01e+07, 0, 0])
+
+# g_m * r_ds 計算
+nMOS_vector[4] = nMOS_vector[2] * nMOS_vector[3]
+pMOS_vector[4] = pMOS_vector[2] * pMOS_vector[3]
+
+# デシベル計算
+nMOS_vector[5] = 20 * np.log10(nMOS_vector[4])
+pMOS_vector[5] = 20 * np.log10(pMOS_vector[4])
+
+# データフレーム作成（ベクトル形式）
+df_vectors = pd.DataFrame({
+    "パラメータ": parameters,
+    "nMOS ベクトル": nMOS_vector,
+    "pMOS ベクトル": pMOS_vector,
+})
+
+# 結果を表示
+print(df_vectors)

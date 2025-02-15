@@ -1,0 +1,39 @@
+# NMOSとPMOSのゲート-ソース電圧計算
+
+# NMOSの値
+V_thn = 0.6  # NMOSの閾値電圧 (V)
+V_ov = 0.1   # オーバードライブ電圧 (V)
+
+# NMOSのゲート-ソース電圧 (V)
+V_in_DC = V_thn + V_ov
+
+# PMOSの値
+V_DD = 1.8  # PMOSの電源電圧 (V)
+V_thp = 0.6  # PMOSの閾値電圧 (V)
+
+# PMOSのゲート-ソース電圧 (V)
+V_b = V_DD - (V_thp + V_ov)
+
+# 結果を表示
+print("NMOSのゲート-ソース電圧 (V_in_DC):", V_in_DC, "V")
+print("PMOSのゲート-ソース電圧 (V_b):", V_b, "V")
+
+# 与えられた値
+I_d = 200e-6  # ドレイン電流 (A)
+mu_n = 200e-6  # 電子移動度 (m^2/V·s)
+C_ox = 0.12  # 酸化物容量 (F/m^2)
+V_ds = 0.9  # ドレイン-ソース電圧 (V)
+A = 0.2  # デバイス固有の定数
+
+# 幅対長さ比(W/L)を計算
+W_L = (2 * I_d) / (mu_n * C_ox * V_ov**2 * (1 + A * (V_ds - V_ov)))  # 幅対長さ比(W/L)
+
+# 最小長さL（単位: nm）を与える
+L_min = 180  # 最小Lのサイズ（単位: nm）
+
+# W（幅）を計算
+W = W_L * L_min  # Wのサイズ（単位: nm）
+
+# 結果を表示
+print("幅対長さ比 (W/L):", W_L)
+print("最小長さL = 180 nmの場合のW:", W, "nm")

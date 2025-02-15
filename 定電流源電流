@@ -1,0 +1,31 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータ設定
+I_SS = 10e-6  # 定電流源電流 (A)
+beta = 50e-6  # トランジスタのバイアス係数 (A/V^2)
+
+# Vin の範囲を設定
+Vin = np.linspace(-2 * np.sqrt(2 * I_SS / beta), 2 * np.sqrt(2 * I_SS / beta), 400)
+
+# 出力電流 I1, I2 の計算
+I1 = I_SS * (1 - Vin / np.sqrt(2 * I_SS / beta))
+I2 = I_SS * (1 + Vin / np.sqrt(2 * I_SS / beta))
+
+# プロット
+plt.figure(figsize=(8, 5))
+plt.plot(Vin, I1, label=r"$I_1$", color="blue")
+plt.plot(Vin, I2, label=r"$I_2$", color="red")
+plt.axhline(I_SS, linestyle="dashed", color="gray", linewidth=1)  # I_SS の基準線
+plt.axhline(0, color="black", linewidth=0.5)  # x軸
+plt.axvline(0, color="black", linewidth=0.5)  # y軸
+
+# 軸ラベルとタイトル
+plt.xlabel(r"$v_{in}$ (V)")
+plt.ylabel("Current (A)")
+plt.title("Differential Pair Output Currents")
+plt.legend()
+plt.grid(True)
+
+# プロット表示
+plt.show()

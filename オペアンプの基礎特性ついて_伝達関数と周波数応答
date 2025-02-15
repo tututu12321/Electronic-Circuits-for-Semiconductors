@@ -1,0 +1,54 @@
+import numpy as np
+
+# パラメータの定義
+g_mn = 1.33e-4  # nMOS のトランスコンダクタンス (S)
+g_mp = 3.12e-5  # pMOS のトランスコンダクタンス (S)
+r_on = 4.44e6   # nMOS のオン抵抗 (Ω)
+r_op = 8.01e7   # pMOS のオン抵抗 (Ω)
+C_0 = 1e-12     # 負荷容量 (F)
+omega = np.logspace(1, 10, 1000)  # 周波数範囲 (10Hz 〜 10GHz)
+
+# 並列抵抗の計算
+r_parallel = (r_on * r_op) / (r_on + r_op)
+
+# 増幅率の計算
+A_v1 = - (g_mn / g_mp) / (1 + 1j * omega * (C_0 / g_mp))
+A_v2 = - (g_mp * r_parallel) / (1 + 1j * omega * C_0 * r_parallel)
+A_v3 = - (g_mn * r_parallel) / (1 + 1j * omega * C_0 * r_parallel)
+
+# 振幅特性 (dB 表示)
+A_v1_dB = 20 * np.log10(np.abs(A_v1))
+A_v2_dB = 20 * np.log10(np.abs(A_v2))
+A_v3_dB = 20 * np.log10(np.abs(A_v3))
+
+# 位相特性 (degree 表示)
+A_v1_phase = np.angle(A_v1, deg=True)
+A_v2_phase = np.angle(A_v2, deg=True)
+A_v3_phase = np.angle(A_v3, deg=True)
+
+# 結果をプロット
+import matplotlib.pyplot as plt
+
+# 振幅特性のプロット
+plt.figure(figsize=(8, 6))
+plt.semilogx(omega, A_v1_dB, label=r'$A_v1$')
+plt.semilogx(omega, A_v2_dB, label=r'$A_v2$')
+plt.semilogx(omega, A_v3_dB, label=r'$A_v3$')
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Gain (dB)")
+plt.title("Frequency Response (Magnitude)")
+plt.legend()
+plt.grid(which="both", linestyle="--")
+plt.show()
+
+# 位相特性のプロット
+plt.figure(figsize=(8, 6))
+plt.semilogx(omega, A_v1_phase, label=r'$A_v1$')
+plt.semilogx(omega, A_v2_phase, label=r'$A_v2$')
+plt.semilogx(omega, A_v3_phase, label=r'$A_v3$')
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Phase (degrees)")
+plt.title("Frequency Response (Phase)")
+plt.legend()
+plt.grid(which="both", linestyle="--")
+plt.show()

@@ -1,0 +1,113 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# サイン波を生成する関数
+def sine_wave_generator(N: int, f_signal: float, fs: float, amplitude: float, offset: float):
+    t_sampling = 1 / fs
+    duration = N * t_sampling
+    t = np.arange(0, duration, t_sampling)
+    signal = amplitude * np.sin(2 * np.pi * f_signal * t) + offset
+    return signal
+
+# コヒーレントサンプリングされたデータを並び替えて１周期分にする関数
+def wave_sort(data, fs: float, f_signal: float):
+    data_num = len(data)
+    t_signal = 1 / f_signal
+    Ts = 1 / fs
+
+    dx_list = []
+    for n in range(data_num):
+        i = int((Ts * n) / t_signal)
+        dx_list.append((Ts * n) - (t_signal * i))
+
+    sorted_indices = sorted(range(len(dx_list)), key=lambda k: dx_list[k])
+
+    sorted_data = [data[i] for i in sorted_indices]
+    return sorted_data
+
+# 理想的なADCとして働く関数
+def ideal_adc(input_voltage, n_bits: int, v_min: float, v_max: float):
+    LSB = (v_max - v_min) / (2**n_bits)
+    digital_level = ((input_voltage - v_min) / LSB).astype(int)
+    digital_level = np.clip(digital_level, 0, 2**n_bits - 1)
+    return digital_level
+
+# ADCのAC評価
+def AC_evaluation(bit: int, data, N: int, fs: float, f_in: float, realtime=False):
+    f = np.divide(data, 2 ** (bit - 1))  # 入力データを正規化
+    dt = 1 / fs  # サンプリング周期
+    t = np.arange(0, N * dt, dt)  # 時間軸
+    freq = np.fft.fftfreq(N, dt)  # 周波数軸
+    freq_norm = freq / fs  # 周波数軸を正規化
+
+    # FFTを計算
+    F = np.fft.fft(f) * 2 / N
+    Power = np.abs(F) ** 2  # パワースペクトル
+    Pow_dB = 10 * np.log10(Power / 1.0)  # dB値に変換
+
+    # 最大信号周波数を探す
+    signal_index = np.argmax(Power[1 : int(N / 2)]) + 1
+    Signal = Power[signal_index]
+    Noise = np.sum(Power[1 : int(N / 2)]) - Signal
+
+    SNDR = 10 * np.log10(Signal / Noise)  # SNDR計算
+    ENOB = (SNDR - 1.76) / 6.02  # ENOB計算
+
+    # 高調波歪みを計算（SFDR）
+    spurious = []
+    for i in range(2, 5):
+        spurious.append(np.max(Pow_dB[(signal_index * i) - 2 : signal_index * i + 2]))
+    SFDR = Pow_dB[signal_index] - np.max(spurious)
+
+    print("SNDR=", SNDR, "dB")
+    print("ENOB=", ENOB, "bit")
+    print("SFDR=", SFDR, "dB")
+
+    # 波形の並び替え
+    sorted_data = wave_sort(data, 1 / dt, f_in)
+
+    # グラフ表示
+    fig = plt.figure(figsize=(10, 5))
+    AC_axes1 = fig.add_subplot(1, 2, 1)
+    AC_axes2 = fig.add_subplot(1, 2, 2)
+
+    AC_axes1.set_title("Sorted Wave")
+    AC_axes1.set_xlabel("Time [sec]")
+    AC_axes1.set_ylabel("Code")
+    AC_axes1.grid()
+    AC_axes1.set_ylim(0, 2**bit)
+
+    AC_axes2.set_title("Power Spectrum")
+    AC_axes2.set_xlabel("f/fs")
+    AC_axes2.set_ylabel("Power [dB]")
+    AC_axes2.grid()
+
+    AC_text1 = AC_axes2.text(0.3, -5.3, "SNDR = " + str(round(SNDR, 2)) + " dB")
+    AC_text2 = AC_axes2.text(0.3, -10.3, "ENOB = " + str(round(ENOB, 2)) + " bit")
+    AC_text3 = AC_axes2.text(0.3, -15.3, "SFDR = " + str(round(SFDR, 2)) + " dB")
+
+    (AC_wav_lines1,) = AC_axes1.plot(t, sorted_data, marker=".", markersize=5, label="f(n)")
+    (AC_wav_lines2,) = AC_axes2.plot(freq_norm[1 : int(N / 2)], Pow_dB[1 : int(N / 2)], label="|F(k)|")
+
+    fig.tight_layout()
+    plt.show()
+
+
+# 使用例
+if __name__ == "__main__":
+    # シミュレーションパラメータ
+    N = 1024  # データ点数
+    fs = 200e3  # サンプリング周波数
+    f_in = 8e3  # 入力信号周波数
+
+    # サイン波生成
+    v_signal = sine_wave_generator(N, f_in, fs, 2.5, 2.5)
+
+    # ノイズを加える
+    v_signal += 10e-3 * np.random.rand(N)
+
+    # 理想ADC
+    data = ideal_adc(v_signal, 8, 0, 5)
+
+    # AC評価を実行
+    AC_evaluation(8, data, N, fs, f_in)

@@ -1,0 +1,36 @@
+import numpy as np
+
+# 与えられた値
+N = 9  # サンプリング数に関連するNの値
+f_in = 50  # 入力周波数 (Hz)
+simulation_time = 10e-6  # シミュレーション時間 (秒)
+
+# サンプリング数を計算 (2^N)
+sampling_points = 2**N
+
+# 入力周波数 f_in の逆数 (周期) を計算
+T_in = 1 / f_in
+
+# (2^n - 1) / (2^N) ≈ 1/10 となる n を求める
+# 式を変形して n を計算
+n_value = np.log2((1 / 10) * (2**N) + 1)
+
+# nは自然数である必要があるため、最も近い整数を求める
+n = int(np.round(n_value))
+
+# サンプリング周波数 fs を求める式 f_in = ((2^n - 1)/(2^N)) × fs から fs を計算
+fs = f_in / ((2**n - 1) / (2**N))
+
+# fs の逆数 (サンプリング周期) を計算
+T_s = 1 / fs
+
+# シミュレーション時間を計算する式 サンプリング数 × (1 / fs)
+calculated_simulation_time = sampling_points * (1 / fs)
+
+# 結果を表示
+print(f"Sampling points (サンプリング数): {sampling_points}")
+print(f"Inverse of input frequency (finの逆数): {T_in:.6e} seconds")
+print(f"Calculated n value (最も近いn): {n}")
+print(f"Sampling frequency (サンプリング周波数 fs): {fs:.2f} Hz")
+print(f"Inverse of sampling frequency (サンプリング周波数の逆数): {T_s:.6e} seconds")
+print(f"Calculated simulation time (シミュレーション時間): {calculated_simulation_time:.6e} seconds")

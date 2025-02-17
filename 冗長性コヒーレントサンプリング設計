@@ -1,0 +1,20 @@
+# Define constants
+FS = 1e6  # Sampling frequency in Hz (1 MHz)
+sampling_points = 1024  # Sampling points
+n = 6  # For 2^n - 1, where n = 6
+
+# Calculate the formula for Fin
+Fin = ((2**n - 1) / sampling_points) * FS
+
+# Calculate the sampling period (Ts) and input signal period (T_input)
+Ts = 1 / FS  # Sampling period in seconds
+T_input = 1 / Fin  # Input signal period in seconds
+
+# Redundancy factor (1.01) applied to the sampling period and sampling points
+redundant_value = Ts * sampling_points * 1.01
+
+# Print the results
+print(f"Fin = {Fin:.7f} Hz")  # Input signal frequency (Fin)
+print(f"Sampling Period Ts = {Ts:.7e} seconds")  # Sampling period
+print(f"Input Signal Period T_input = {T_input:.7e} seconds")  # Input signal period
+print(f"Redundant Value (Ts * Sampling Points * 1.01) = {redundant_value:.7e} seconds")  # Redundant value

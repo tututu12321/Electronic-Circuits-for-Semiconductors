@@ -1,0 +1,55 @@
+import numpy as np
+
+# パラメータ設定 / Parameter settings
+N = 11  # FFTポイント数の指数部 / Exponent of FFT points
+fs = 10 * 10**3  # サンプリング周波数 [Hz] / Sampling frequency [Hz]
+finRate = 8  # 入力周波数の分母 / Denominator for input frequency
+
+print("N (FFT exponent):", N)
+print("fs (Sampling frequency):", fs, "Hz")
+print("finRate (Denominator for input frequency):", finRate)
+
+# FFT設定 / FFT settings
+FFT_points = 2**N  # FFTのポイント数 / Number of FFT points
+nyquist_points = FFT_points // 2  # ナイキスト点 / Nyquist points
+
+print("FFT_points (Number of FFT points):", FFT_points)
+print("nyquist_points (Nyquist points):", nyquist_points)
+
+# 最も近い値のインデックスを取得する関数 / Function to find the nearest index
+def find_nearest(array, value):
+    array = np.array(array)
+    index = (np.abs(array - value)).argmin()
+    return index
+
+# 入力周波数リストの作成 / Create a list of input frequencies
+freq = []  
+for n in range(2, N):
+    prime = np.exp(n * np.log(2)) - 1  # 2の対数スケール / Logarithm of 2
+    fin_per_fs = prime / FFT_points  # 正規化周波数 / Normalized frequency
+    freq.append(fin_per_fs)
+    print(f"n={n}, prime={prime:.6f}, fin_per_fs={fin_per_fs:.6f}")
+
+# 入力周波数の決定 / Determine the input frequency
+index = find_nearest(freq, 1 / finRate)  # finRateに最も近い値を探す / Find the nearest value to 1/finRate
+fin = freq[index] * fs  # 実際の周波数 / Actual frequency
+
+print("Nearest index:", index)
+print("Selected fin_per_fs:", freq[index])
+print("Actual frequency (fin):", fin, "Hz")
+
+# 単位の設定 / Set the unit
+if fin >= 10**9:
+    unit = " [G] Hz"
+    fin = fin / 10**9
+elif fin >= 10**6:
+    unit = " [M] Hz"
+    fin = fin / 10**6
+elif fin >= 10**3:
+    unit = " [K] Hz"
+    fin = fin / 10**3
+else:
+    unit = " Hz"
+
+# 結果を表示 / Display the result
+print("最適な入力周波数は {:.6f}{} です。".format(fin, unit))

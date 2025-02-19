@@ -1,0 +1,65 @@
+import numpy as np
+import scipy.linalg
+
+# サンプル行列 A と ベクトル b (n=10 の場合)
+np.random.seed(0)
+n = 10  # 行列のサイズ (大きな値に変更可能)
+A = np.random.rand(n, n) * 10  # 10x10 のランダム行列
+b = np.random.rand(n) * 10  # 10次元のランダムベクトル
+
+print("Matrix A:")
+print(A)
+print("\nVector b:")
+print(b)
+
+# --- 1. ガウスの消去法 (前進消去 + 後退代入) ---
+def gauss_elimination(A, b):
+    """ガウスの消去法で Ax = b を解く"""
+    n = len(A)
+    Ab = np.hstack([A, b.reshape(-1, 1)])  # 拡大係数行列 (Augmented Matrix)
+    
+    # 前進消去 (三角行列化)
+    for i in range(n):
+        # ピボット選択 (最大値を持つ行を i 行目に交換)
+        max_row = np.argmax(np.abs(Ab[i:, i])) + i
+        Ab[[i, max_row]] = Ab[[max_row, i]]
+
+        # 下の行を消去
+        for j in range(i + 1, n):
+            factor = Ab[j, i] / Ab[i, i]
+            Ab[j, i:] -= factor * Ab[i, i:]
+
+    # 後退代入 (Back Substitution)
+    x = np.zeros(n)
+    for i in range(n - 1, -1, -1):
+        x[i] = (Ab[i, -1] - np.dot(Ab[i, i+1:n], x[i+1:n])) / Ab[i, i]
+    
+    return x
+
+x_gauss = gauss_elimination(A, b)
+print("\nSolution using Gauss Elimination:")
+print(x_gauss)
+
+
+# --- 2. 逆行列法 (x = A^(-1) * b) ---
+try:
+    x_inv = np.linalg.inv(A) @ b
+    print("\nSolution using Inverse Matrix Method:")
+    print(x_inv)
+except np.linalg.LinAlgError:
+    print("\nMatrix is singular, inverse method cannot be applied.")
+
+
+# --- 3. LU分解 (PA = LU を用いる) ---
+P, L, U = scipy.linalg.lu(A)
+y = np.linalg.solve(L, P @ b)  # 前進代入
+x_LU = np.linalg.solve(U, y)  # 後退代入
+
+print("\nSolution using LU Decomposition:")
+print(x_LU)
+
+
+# --- 解の比較 ---
+print("\nDifference between Gauss and LU:", np.linalg.norm(x_gauss - x_LU))
+if 'x_inv' in locals():
+    print("Difference between Inverse and LU:", np.linalg.norm(x_inv - x_LU))

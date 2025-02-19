@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 設定値
+num_samples = 1000  # サンプル数
+W_mean = 0.5  # Wの平均値 (μm)
+L_mean = 1.0  # Lの平均値 (μm)
+W_sigma = 0.05  # Wの標準偏差 (ばらつき)
+L_sigma = 0.001  # Lの標準偏差 (ばらつき)
+
+# WとLのばらつきを考慮したランダムデータ生成（正規分布）
+W_values = np.random.normal(W_mean, W_sigma, num_samples)
+L_values = np.random.normal(L_mean, L_sigma, num_samples)
+
+# 面積の計算 (A = W × L)
+Area_values = W_values * L_values
+
+# 一番小さい面積と一番大きい面積を取得
+min_area = np.min(Area_values)
+max_area = np.max(Area_values)
+
+# プロット
+fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+
+# Wのヒストグラム
+ax[0].hist(W_values, bins=30, color='b', alpha=0.7, edgecolor='black')
+ax[0].set_title("W (Width) Distribution")
+ax[0].set_xlabel("Width (μm)")
+ax[0].set_ylabel("Frequency")
+
+# Lのヒストグラム
+ax[1].hist(L_values, bins=30, color='r', alpha=0.7, edgecolor='black')
+ax[1].set_title("L (Length) Distribution")
+ax[1].set_xlabel("Length (μm)")
+ax[1].set_ylabel("Frequency")
+
+# 面積のヒストグラム
+ax[2].hist(Area_values, bins=30, color='g', alpha=0.7, edgecolor='black')
+ax[2].set_title("Area (W × L) Distribution")
+ax[2].set_xlabel("Area (μm²)")
+ax[2].set_ylabel("Frequency")
+
+# 最小・最大の面積をプロット
+fig, ax_area = plt.subplots(figsize=(6, 4))
+ax_area.bar(["Min Area", "Max Area"], [min_area, max_area], color=['blue', 'red'])
+ax_area.set_title("Min and Max Area")
+ax_area.set_ylabel("Area (μm²)")
+
+# グラフを表示
+plt.tight_layout()
+plt.show()

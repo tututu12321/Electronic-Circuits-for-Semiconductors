@@ -1,0 +1,120 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Function to compute optimal n and Fin
+def compute_optimal_n(FS, N):
+    best_n = None
+    best_ratio = None
+    for n in range(1, N+1):
+        candidate_Fin = (2 ** n) - 1
+        ratio = candidate_Fin / FS
+        if best_ratio is None or abs(ratio - 1/10) < abs(best_ratio - 1/10):
+            best_n = n
+            best_ratio = ratio
+    Fin = (2 ** best_n) - 1
+    Fin_period = 1 / Fin
+    return best_n, Fin, Fin_period
+
+# Function to generate input signal
+def generate_input_signal(Fin, time_data):
+    noise = np.random.normal(0, 0.005, len(time_data))  # Gaussian noise
+    input_signal = np.sin(2 * np.pi * Fin * time_data) + noise
+    return input_signal
+
+# Function to compute the FFT and Power Spectrum
+def compute_fft(input_signal, FS, time_data):
+    N = len(input_signal)
+    freqs = np.fft.fftfreq(N, 1/FS)
+    fft_values = np.fft.fft(input_signal) * 2 / N
+    power_spectrum = np.abs(fft_values) ** 2
+    Pow_dB = 10 * np.log10(power_spectrum[:N//2])
+    freqs_half = freqs[:N//2]
+    return Pow_dB, freqs_half
+
+# Function to calculate SNDR, ENOB, SFDR
+def calculate_metrics(power_spectrum):
+    signal_index = np.argmax(power_spectrum[1:]) + 1  # Peak of signal component
+    Signal = power_spectrum[signal_index]
+    Noise = np.sum(power_spectrum[1:]) - Signal  # Noise power
+    SNDR = 10 * np.log10(Signal / Noise)  # Signal-to-Noise and Distortion Ratio (SNDR)
+    ENOB = (SNDR - 1.76) / 6.02  # Effective Number of Bits (ENOB)
+    SFDR = 10 * np.log10(Signal / np.max(power_spectrum[1:]))  # Spurious-Free Dynamic Range (SFDR)
+    return SNDR, ENOB, SFDR
+
+# Main simulation function
+def main_simulation():
+    # Simulation parameters
+    N = 10  # FFT sample count exponent
+    FS = 2 ** N  # Sampling frequency
+    FS_period = 1 / FS  # Sampling period
+
+    # Compute optimal n and Fin
+    best_n, Fin, Fin_period = compute_optimal_n(FS, N)
+
+    # Print simulation parameters
+    print(f"Optimal n: {best_n}")
+    print(f"Optimal Fin = {Fin} Hz")
+    print(f"Fin Period = {Fin_period:.6f} s")
+    print(f"Sampling Frequency FS = {FS} Hz")
+    print(f"Sampling Period FS = {FS_period:.6f} s")
+    
+    # Simulation time: twice the sampling period to cover sufficient time
+    T = (2 * FS) / FS  # Time duration for simulation
+
+    # Time axis setup
+    time_data = np.linspace(0, T, 2 * FS, endpoint=False)
+
+    # Generate input signal (sine wave with noise)
+    input_signal = generate_input_signal(Fin, time_data)
+
+    # Sampling the signal between 0.5s and 1.5s
+    sampling_start, sampling_end = 0.5, 1.5
+    sampling_mask = (time_data >= sampling_start) & (time_data <= sampling_end)
+    sampled_time = time_data[sampling_mask]
+    sampled_signal = input_signal[sampling_mask]
+
+    # Compute FFT and power spectrum
+    Pow_dB, freqs_half = compute_fft(input_signal, FS, time_data)
+
+    # Calculate metrics (SNDR, ENOB, SFDR)
+    SNDR, ENOB, SFDR = calculate_metrics(Pow_dB)
+
+    # Print metrics
+    print(f"SNDR = {SNDR:.2f} dB")
+    print(f"ENOB = {ENOB:.2f} bits")
+    print(f"SFDR = {SFDR:.2f} dB")
+
+    # Plot results
+    fig, axs = plt.subplots(3, 1, figsize=(10, 12))
+
+    # Input signal plot
+    axs[0].plot(time_data, input_signal, label="Input Sine Wave with Noise", color='blue')
+    axs[0].set_title("Input Sine Wave with Noise")
+    axs[0].set_xlabel("Time [s]")
+    axs[0].set_ylabel("Amplitude")
+    axs[0].grid()
+    axs[0].legend()
+
+    # Sampled signal plot (0.5s - 1.5s)
+    axs[1].scatter(sampled_time, sampled_signal, color='red', label="Sampled Points (FS Sampling)")
+    axs[1].set_title("Sampled Signal (0.5s - 1.5s, FS Sampling)")
+    axs[1].set_xlabel("Time [s]")
+    axs[1].set_ylabel("Amplitude")
+    axs[1].grid()
+    axs[1].legend()
+
+    # Power spectrum plot
+    axs[2].plot(freqs_half, Pow_dB, label="Power Spectrum", color="red")
+    axs[2].set_title("Power Spectrum")
+    axs[2].set_xlabel("f/fs")
+    axs[2].set_ylabel("Power [dB]")
+    axs[2].grid()
+    axs[2].legend()
+
+    plt.tight_layout()
+    plt.show()
+
+# Run the main simulation
+if __name__ == "__main__":
+    main_simulation()

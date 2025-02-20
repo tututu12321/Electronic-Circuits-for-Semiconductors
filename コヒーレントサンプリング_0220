@@ -14,7 +14,7 @@ simulation_time = sample_count * (1 / FS)
 print("Simulation time: {:.6f} seconds".format(simulation_time))
 
 # Part 3: Function to find the nearest frequency
-N = 12
+N = 11
 fs = 1e6  # Sampling frequency in Hz
 finRate = 8  # Input frequency rate (example value)
 freq = []

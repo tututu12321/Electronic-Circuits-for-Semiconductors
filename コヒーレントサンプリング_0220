@@ -51,3 +51,7 @@ else:
 
 # Print the optimal input frequency
 print(f"Optimal input frequency is: {fin:.6f}{unit}")
+
+# Part 4: Calculation of A
+A = (fin / FS) * (2**N)
+print(f"A: {A:.6f}")

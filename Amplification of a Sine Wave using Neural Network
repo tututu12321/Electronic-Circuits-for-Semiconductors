@@ -1,0 +1,62 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.neural_network import MLPRegressor
+
+# パラメータ設定
+V_DD = 5  # 電源電圧 (V)
+A = 100     # 増幅率
+
+# 入力信号（V_in）の範囲
+V_in = np.linspace(-V_DD, V_DD, 1000)  # 入力電圧範囲（-V_DD から +V_DD）
+
+# 出力信号の計算 (V_out)
+V_out = np.piecewise(V_in, 
+                      [V_in >= V_DD/A, 
+                       (V_in < V_DD/A) & (V_in >= -V_DD/A), 
+                       V_in < -V_DD/A],
+                      [V_DD, lambda x: A*x, -V_DD])
+
+# --- Part 1: Neural Network Regression --- #
+# サンプリングして、ニューラルネットワーク用にデータを準備
+X_train = V_in.reshape(-1, 1)  # 入力データ（1次元配列）
+y_train = V_out  # 出力データ
+
+# ニューラルネットワークの回帰モデル
+nn_model = MLPRegressor(hidden_layer_sizes=(50, 50), max_iter=10000, random_state=42)
+
+# モデルの訓練
+nn_model.fit(X_train, y_train)
+
+# --- Part 2: Amplification of a Sine Wave --- #
+# サイン波の生成
+t = np.linspace(0, 2 * np.pi, 1000)  # 時間軸
+V_in_sine = 5 * np.sin(t)  # 振幅5Vのサイン波
+
+# ニューラルネットワークでサイン波を増幅
+V_out_sine = nn_model.predict(V_in_sine.reshape(-1, 1))
+
+# --- Plotting the Results --- #
+plt.figure(figsize=(10, 6))
+
+# Part 1: 入出力特性のプロット
+plt.subplot(2, 1, 1)
+plt.plot(V_in, V_out, label="True Input-Output Characteristics", color='red')
+plt.scatter(X_train, y_train, color='blue', s=5, label="Sampled Data (Training Data)")
+plt.xlabel("Input Voltage $V_{in}$ (V)")
+plt.ylabel("Output Voltage $V_{out}$ (V)")
+plt.title("Neural Network Regression: Input-Output Characteristics")
+plt.legend()
+plt.grid(True)
+
+# Part 2: サイン波の増幅結果のプロット
+plt.subplot(2, 1, 2)
+plt.plot(t, V_in_sine, label="Input: $V_{in}$ (Sine Wave)", linestyle='dashed', color='blue')
+plt.plot(t, V_out_sine, label="Amplified Output: $V_{out}$", linewidth=2, color='red')
+plt.xlabel("Time (s)")
+plt.ylabel("Voltage (V)")
+plt.title("Amplification of a Sine Wave using Neural Network")
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()

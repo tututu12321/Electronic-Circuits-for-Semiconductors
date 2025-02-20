@@ -1,0 +1,53 @@
+import numpy as np
+
+# Part 1: Calculation of Fin based on the given formula
+sample_count = 1024  # Sample count
+co_prime = 17  # Co-prime natural number
+FS = 1e6  # Sampling frequency (1 MHz)
+
+# Calculate Fin
+Fin = FS * (sample_count / co_prime)
+print("Fin: {:.6f} Hz".format(Fin))
+
+# Part 2: Simulation time based on sample count and FS
+simulation_time = sample_count * (1 / FS)
+print("Simulation time: {:.6f} seconds".format(simulation_time))
+
+# Part 3: Function to find the nearest frequency
+N = 12
+fs = 1e6  # Sampling frequency in Hz
+finRate = 8  # Input frequency rate (example value)
+freq = []
+FFT_points = 2**N
+nyquist_points = FFT_points // 2
+
+def find_nearest(array, value):
+    array = np.array(array)
+    index = (np.abs(array - value)).argmin()
+    return index
+
+for n in range(2, N):
+    prime = np.exp(n * np.log(2)) - 1  # Calculation based on logarithms
+    fin_per_fs = prime / FFT_points
+    freq.append(fin_per_fs)
+
+index = find_nearest(freq, 1 / finRate)
+
+# Calculate fin
+fin = freq[index] * fs
+
+# Determine the unit based on the value of fin
+if len(str(int(fin))) > 10:
+    unit = ' [G] Hz'
+    fin = fin / 10**9
+elif len(str(int(fin))) > 7:
+    unit = ' [M] Hz'
+    fin = fin / 10**6
+elif len(str(int(fin))) > 4:
+    unit = ' [K] Hz'
+    fin = fin / 10**3
+else:
+    unit = ' Hz'
+
+# Print the optimal input frequency
+print(f"Optimal input frequency is: {fin:.6f}{unit}")

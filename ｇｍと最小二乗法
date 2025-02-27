@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from numpy.linalg import lstsq
+
+# Example data for g_m, I_d, and W/L
+g_m = np.array([1.2, 2.3, 3.4, 4.5, 5.6])  # Transconductance (gm)
+I_d = np.array([0.5, 1.0, 1.5, 2.0, 2.5])  # Drain current (Id)
+W_L = np.array([10, 20, 30, 40, 50])  # Aspect ratio (W/L)
+
+# Prepare the data for least squares fitting
+# K1 = gm / sqrt(Id)
+K1_data = g_m / np.sqrt(I_d)
+
+# K2 = gm / sqrt(W/L)
+K2_data = g_m / np.sqrt(W_L)
+
+# Solve for K1 using least squares (fitting y = m * x)
+A_K1 = np.sqrt(I_d).reshape(-1, 1)
+K1, _, _, _ = lstsq(A_K1, g_m, rcond=None)
+
+# Solve for K2 using least squares (fitting y = m * x)
+A_K2 = np.sqrt(W_L).reshape(-1, 1)
+K2, _, _, _ = lstsq(A_K2, g_m, rcond=None)
+
+# Output the results
+print(f"Calculated K1: {K1[0]}")
+print(f"Calculated K2: {K2[0]}")
+
+# Plot the results
+plt.figure(figsize=(10, 6))
+
+# Plot K1
+plt.subplot(1, 2, 1)
+plt.scatter(np.sqrt(I_d), g_m, label="Data")
+plt.plot(np.sqrt(I_d), K1[0] * np.sqrt(I_d), color='r', label=f"Fitted K1 = {K1[0]:.2f}")
+plt.xlabel("sqrt(Id)")
+plt.ylabel("gm")
+plt.title("Least Squares Fit for K1")
+plt.legend()
+
+# Plot K2
+plt.subplot(1, 2, 2)
+plt.scatter(np.sqrt(W_L), g_m, label="Data")
+plt.plot(np.sqrt(W_L), K2[0] * np.sqrt(W_L), color='r', label=f"Fitted K2 = {K2[0]:.2f}")
+plt.xlabel("sqrt(W/L)")
+plt.ylabel("gm")
+plt.title("Least Squares Fit for K2")
+plt.legend()
+
+plt.tight_layout()
+plt.show()

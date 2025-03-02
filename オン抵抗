@@ -1,0 +1,30 @@
+def calculate_mosfet_resistance(L, W, mu_n, Cox, Vgs, Vth):
+    """
+    MOSFETのオン抵抗 R_DS(on) を計算し、結果を出力する関数
+    Calculate MOSFET on-resistance and print the result
+
+    Parameters:
+    L (float): チャネル長 [m]
+    W (float): チャネル幅 [m]
+    mu_n (float): 電子移動度 [m²/Vs]
+    Cox (float): 酸化膜容量密度 [F/m²]
+    Vgs (float): ゲート-ソース電圧 [V]
+    Vth (float): 閾値電圧 [V]
+    """
+    if Vgs <= Vth:
+        print("Vgs must be greater than Vth to operate in the linear region.")
+        return
+    
+    R_ds_on = L / (mu_n * Cox * W * (Vgs - Vth))
+    print(f"R_DS(on) = {L} / ({mu_n} * {Cox} * {W} * ({Vgs} - {Vth})) = {R_ds_on:.6f} Ω")
+
+# 入力例
+L = 0.5e-6  # 0.5μm
+W = 10e-6   # 10μm
+mu_n = 300e-4  # 300 cm²/Vs = 0.03 m²/Vs (nMOS)
+Cox = 2.3e-3  # 2.3 mF/m² (SiO2の例)
+Vgs = 1.8  # V
+Vth = 0.7  # V
+
+# MOSFETのオン抵抗を計算
+calculate_mosfet_resistance(L, W, mu_n, Cox, Vgs, Vth)

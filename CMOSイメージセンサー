@@ -1,0 +1,41 @@
+import numpy as np
+
+# 物理定数
+h = 6.626e-34  # プランク定数 [J·s]
+c = 3.0e8      # 光速 [m/s]
+q_e = 1.602e-19 # 電子電荷 [C]
+
+# CMOSセンサーの特性(概算)
+eta = 0.0000000000000000000000008         # （実用的な値）
+P_opt = 5e-6      # 入射光パワー [W]
+lambda_light = 550e-9 # 光の波長 [m] (緑の光)
+t_int = 5e-3      # 積分時間（露光時間）[s]
+C_PD = 5e-12      # フォトダイオード容量 [F]
+A = 20            # アンプのゲイン（一般的な範囲）
+N = 10            # A/Dコンバータのビット数（10bit ADC）
+V_min = 0.0       # A/D変換の最小電圧 [V]
+V_max = 2.8       # A/D変換の最大電圧 [V]
+
+# 1. 光電変換（光→電荷）
+Q = eta * P_opt * (lambda_light / (h * c)) * t_int
+print(f"生成電荷量 Q: {Q:.3e} C")
+
+# 2. 電荷→電圧変換
+V_PD = Q / C_PD
+print(f"フォトダイオードの出力電圧 V_PD: {V_PD:.3f} V")
+
+# 3. 信号増幅
+V_amp = A * V_PD
+print(f"増幅後の電圧 V_amp: {V_amp:.3f} V")
+
+# 4. A/D変換（電圧→デジタル値）
+D = np.floor(((V_amp - V_min) / (V_max - V_min)) * (2**N - 1))
+D = max(0, min(D, 2**N - 1))  # 範囲外の値を制限
+print(f"A/D変換後のデジタル値 D: {int(D)}")
+
+# 5. 画像データの生成（デジタル値→輝度）
+def image_processing(D, max_D):
+    return (D / max_D) * 255  # 255階調の輝度値に変換
+
+I_xy = image_processing(D, 2**N - 1)
+print(f"最終的な画像輝度値 I(x,y): {I_xy:.1f}")

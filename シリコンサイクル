@@ -1,0 +1,23 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 時間軸（20年間を想定）
+years = np.arange(2000, 2025, 0.1)  # 2000年から2025年まで
+
+# シリコンサイクルを正弦波でモデル化（周期4年）
+cycle = np.sin(2 * np.pi * (years - 2000) / 4)
+
+# ランダムなノイズを追加して現実的な変動を再現
+noise = np.random.normal(0, 0.2, len(years))
+market_trend = cycle + noise
+
+# プロット
+plt.figure(figsize=(10, 5))
+plt.plot(years, market_trend, label='Silicon Cycle', color='b')
+plt.axhline(0, color='gray', linestyle='--', linewidth=0.8)  # 0基準線
+plt.title('Silicon Cycle in Semiconductor Industry')
+plt.xlabel('Year')
+plt.ylabel('Market Condition')
+plt.legend()
+plt.grid()
+plt.show()
